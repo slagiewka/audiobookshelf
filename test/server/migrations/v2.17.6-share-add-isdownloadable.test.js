@@ -1,6 +1,6 @@
-const chai = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach } = require('node:test')
 const sinon = require('sinon')
-const { expect } = chai
 
 const { DataTypes } = require('sequelize')
 
@@ -34,19 +34,19 @@ describe('Migration v2.17.6-share-add-isDownloadable', () => {
     it('should add the isDownloadable column to mediaItemShares table', async () => {
       await up({ context: { queryInterface, logger } })
 
-      expect(queryInterface.addColumn.calledOnce).to.be.true
-      expect(
+      assert.strictEqual(queryInterface.addColumn.calledOnce, true)
+      assert.strictEqual(
         queryInterface.addColumn.calledWith('mediaItemShares', 'isDownloadable', {
           type: DataTypes.BOOLEAN,
           defaultValue: false,
           allowNull: false
         })
-      ).to.be.true
+      , true)
 
-      expect(logger.info.calledWith('[2.17.6 migration] UPGRADE BEGIN: 2.17.6-share-add-isdownloadable')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] Adding isDownloadable column to mediaItemShares table')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] Added isDownloadable column to mediaItemShares table')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] UPGRADE END: 2.17.6-share-add-isdownloadable')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] UPGRADE BEGIN: 2.17.6-share-add-isdownloadable'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] Adding isDownloadable column to mediaItemShares table'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] Added isDownloadable column to mediaItemShares table'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] UPGRADE END: 2.17.6-share-add-isdownloadable'), true)
     })
   })
 
@@ -56,13 +56,13 @@ describe('Migration v2.17.6-share-add-isDownloadable', () => {
 
       await down({ context: { queryInterface, logger } })
 
-      expect(queryInterface.removeColumn.calledOnce).to.be.true
-      expect(queryInterface.removeColumn.calledWith('mediaItemShares', 'isDownloadable')).to.be.true
+      assert.strictEqual(queryInterface.removeColumn.calledOnce, true)
+      assert.strictEqual(queryInterface.removeColumn.calledWith('mediaItemShares', 'isDownloadable'), true)
 
-      expect(logger.info.calledWith('[2.17.6 migration] DOWNGRADE BEGIN: 2.17.6-share-add-isdownloadable')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] Removing isDownloadable column from mediaItemShares table')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] Removed isDownloadable column from mediaItemShares table')).to.be.true
-      expect(logger.info.calledWith('[2.17.6 migration] DOWNGRADE END: 2.17.6-share-add-isdownloadable')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] DOWNGRADE BEGIN: 2.17.6-share-add-isdownloadable'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] Removing isDownloadable column from mediaItemShares table'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] Removed isDownloadable column from mediaItemShares table'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.6 migration] DOWNGRADE END: 2.17.6-share-add-isdownloadable'), true)
     })
   })
 })

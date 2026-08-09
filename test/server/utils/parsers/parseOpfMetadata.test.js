@@ -1,5 +1,5 @@
-const chai = require('chai')
-const expect = chai.expect
+const assert = require('node:assert/strict')
+const { describe, it } = require('node:test')
 const { parseOpfMetadataXML } = require('../../../../server/utils/parsers/parseOpfMetadata')
 
 describe('parseOpfMetadata - test series', async () => {
@@ -14,7 +14,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([{ name: 'Serie', sequence: '1' }])
+    assert.deepStrictEqual(parsedOpf.series, [{ name: 'Serie', sequence: '1' }])
   })
 
   it('test more then 1 series - in correct order', async () => {
@@ -32,7 +32,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([
+    assert.deepStrictEqual(parsedOpf.series, [
       { name: 'Serie 1', sequence: '1' },
       { name: 'Serie 2', sequence: '2' },
       { name: 'Serie 3', sequence: '3' }
@@ -53,7 +53,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([
+    assert.deepStrictEqual(parsedOpf.series, [
       { name: 'Serie 1', sequence: '1' },
       { name: 'Serie 3', sequence: null }
     ])
@@ -74,7 +74,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([
+    assert.deepStrictEqual(parsedOpf.series, [
       { name: 'Serie 1', sequence: null },
       { name: 'Serie 2', sequence: 'abc' },
       { name: 'Serie 3', sequence: null }
@@ -92,7 +92,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([])
+    assert.deepStrictEqual(parsedOpf.series, [])
   })
 
   it('test series and index using an xml namespace', async () => {
@@ -106,7 +106,7 @@ describe('parseOpfMetadata - test series', async () => {
             </ns0:package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([{ name: 'Serie 1', sequence: null }])
+    assert.deepStrictEqual(parsedOpf.series, [{ name: 'Serie 1', sequence: null }])
   })
 
   it('test series and series index not directly underneath', async () => {
@@ -121,7 +121,7 @@ describe('parseOpfMetadata - test series', async () => {
             </package>
         `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.series).to.deep.equal([{ name: 'Serie 1', sequence: '1' }])
+    assert.deepStrictEqual(parsedOpf.series, [{ name: 'Serie 1', sequence: '1' }])
   })
 
   it('test author is parsed from refines meta', async () => {
@@ -135,6 +135,6 @@ describe('parseOpfMetadata - test series', async () => {
         </package>
       `
     const parsedOpf = await parseOpfMetadataXML(opf)
-    expect(parsedOpf.authors).to.deep.equal(['Nevil Shute'])
+    assert.deepStrictEqual(parsedOpf.authors, ['Nevil Shute'])
   })
 })

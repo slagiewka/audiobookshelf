@@ -1,6 +1,6 @@
+const assert = require('node:assert/strict')
+const { describe, it } = require('node:test')
 const Path = require('path')
-const chai = require('chai')
-const expect = chai.expect
 const scanUtils = require('../../../server/utils/scandir')
 
 describe('scanUtils', async () => {
@@ -41,7 +41,7 @@ describe('scanUtils', async () => {
 
     const libraryItemGrouping = scanUtils.groupFileItemsIntoLibraryItemDirs('book', fileItems, false)
 
-    expect(libraryItemGrouping).to.deep.equal({
+    assert.deepStrictEqual(libraryItemGrouping, {
       'Book1.m4b': 'Book1.m4b',
       Book2: ['audiofile.m4b', 'disk 001/audiofile.m4b', 'disk 002/audiofile.m4b'],
       'Author/Book3': ['audiofile.mp3', 'Disc 1/audiofile.mp3', 'Disc 2/audiofile.mp3'],

@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, before, after, beforeEach } = require('node:test')
 const sinon = require('sinon')
 const { up, down } = require('../../../server/migrations/v2.17.5-remove-host-from-feed-urls')
 const { Sequelize, DataTypes } = require('sequelize')
@@ -73,28 +74,28 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(logger.info.calledWith('[2.17.5 migration] UPGRADE BEGIN: 2.17.5-remove-host-from-feed-urls')).to.be.true
-      expect(logger.info.calledWith('[2.17.5 migration] Removing serverAddress from Feeds table URLs')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] UPGRADE BEGIN: 2.17.5-remove-host-from-feed-urls'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Removing serverAddress from Feeds table URLs'), true)
 
-      expect(feeds[0].feedUrl).to.equal('/feed1')
-      expect(feeds[0].imageUrl).to.equal('/img1')
-      expect(feeds[0].siteUrl).to.equal('/site1')
-      expect(feeds[1].feedUrl).to.equal('/feed2')
-      expect(feeds[1].imageUrl).to.equal('/img2')
-      expect(feeds[1].siteUrl).to.equal('/site2')
+      assert.strictEqual(feeds[0].feedUrl, '/feed1')
+      assert.strictEqual(feeds[0].imageUrl, '/img1')
+      assert.strictEqual(feeds[0].siteUrl, '/site1')
+      assert.strictEqual(feeds[1].feedUrl, '/feed2')
+      assert.strictEqual(feeds[1].imageUrl, '/img2')
+      assert.strictEqual(feeds[1].siteUrl, '/site2')
 
-      expect(logger.info.calledWith('[2.17.5 migration] Removed serverAddress from Feeds table URLs')).to.be.true
-      expect(logger.info.calledWith('[2.17.5 migration] Removing serverAddress from FeedEpisodes table URLs')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Removed serverAddress from Feeds table URLs'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Removing serverAddress from FeedEpisodes table URLs'), true)
 
-      expect(feedEpisodes[0].siteUrl).to.equal('/episode11')
-      expect(feedEpisodes[0].enclosureUrl).to.equal('/enclosure11')
-      expect(feedEpisodes[1].siteUrl).to.equal('/episode12')
-      expect(feedEpisodes[1].enclosureUrl).to.equal('/enclosure12')
-      expect(feedEpisodes[2].siteUrl).to.equal('/episode21')
-      expect(feedEpisodes[2].enclosureUrl).to.equal('/enclosure21')
+      assert.strictEqual(feedEpisodes[0].siteUrl, '/episode11')
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, '/enclosure11')
+      assert.strictEqual(feedEpisodes[1].siteUrl, '/episode12')
+      assert.strictEqual(feedEpisodes[1].enclosureUrl, '/enclosure12')
+      assert.strictEqual(feedEpisodes[2].siteUrl, '/episode21')
+      assert.strictEqual(feedEpisodes[2].enclosureUrl, '/enclosure21')
 
-      expect(logger.info.calledWith('[2.17.5 migration] Removed serverAddress from FeedEpisodes table URLs')).to.be.true
-      expect(logger.info.calledWith('[2.17.5 migration] UPGRADE END: 2.17.5-remove-host-from-feed-urls')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Removed serverAddress from FeedEpisodes table URLs'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] UPGRADE END: 2.17.5-remove-host-from-feed-urls'), true)
     })
 
     it('should handle null URLs in Feeds and FeedEpisodes tables', async () => {
@@ -106,11 +107,11 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(feeds[0].feedUrl).to.equal('/feed1')
-      expect(feeds[0].imageUrl).to.be.null
-      expect(feeds[0].siteUrl).to.equal('/site1')
-      expect(feedEpisodes[0].siteUrl).to.be.null
-      expect(feedEpisodes[0].enclosureUrl).to.equal('/enclosure11')
+      assert.strictEqual(feeds[0].feedUrl, '/feed1')
+      assert.strictEqual(feeds[0].imageUrl, null)
+      assert.strictEqual(feeds[0].siteUrl, '/site1')
+      assert.strictEqual(feedEpisodes[0].siteUrl, null)
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, '/enclosure11')
     })
 
     it('should handle null serverAddress in Feeds table', async () => {
@@ -121,11 +122,11 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(feeds[0].feedUrl).to.equal('http://server1.com/feed1')
-      expect(feeds[0].imageUrl).to.equal('http://server1.com/img1')
-      expect(feeds[0].siteUrl).to.equal('http://server1.com/site1')
-      expect(feedEpisodes[0].siteUrl).to.equal('http://server1.com/episode11')
-      expect(feedEpisodes[0].enclosureUrl).to.equal('http://server1.com/enclosure11')
+      assert.strictEqual(feeds[0].feedUrl, 'http://server1.com/feed1')
+      assert.strictEqual(feeds[0].imageUrl, 'http://server1.com/img1')
+      assert.strictEqual(feeds[0].siteUrl, 'http://server1.com/site1')
+      assert.strictEqual(feedEpisodes[0].siteUrl, 'http://server1.com/episode11')
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, 'http://server1.com/enclosure11')
     })
   })
 
@@ -146,27 +147,27 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(logger.info.calledWith('[2.17.5 migration] DOWNGRADE BEGIN: 2.17.5-remove-host-from-feed-urls')).to.be.true
-      expect(logger.info.calledWith('[2.17.5 migration] Adding serverAddress back to Feeds table URLs')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] DOWNGRADE BEGIN: 2.17.5-remove-host-from-feed-urls'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Adding serverAddress back to Feeds table URLs'), true)
 
-      expect(feeds[0].feedUrl).to.equal('http://server1.com/feed1')
-      expect(feeds[0].imageUrl).to.equal('http://server1.com/img1')
-      expect(feeds[0].siteUrl).to.equal('http://server1.com/site1')
-      expect(feeds[1].feedUrl).to.equal('http://server2.com/feed2')
-      expect(feeds[1].imageUrl).to.equal('http://server2.com/img2')
-      expect(feeds[1].siteUrl).to.equal('http://server2.com/site2')
+      assert.strictEqual(feeds[0].feedUrl, 'http://server1.com/feed1')
+      assert.strictEqual(feeds[0].imageUrl, 'http://server1.com/img1')
+      assert.strictEqual(feeds[0].siteUrl, 'http://server1.com/site1')
+      assert.strictEqual(feeds[1].feedUrl, 'http://server2.com/feed2')
+      assert.strictEqual(feeds[1].imageUrl, 'http://server2.com/img2')
+      assert.strictEqual(feeds[1].siteUrl, 'http://server2.com/site2')
 
-      expect(logger.info.calledWith('[2.17.5 migration] Added serverAddress back to Feeds table URLs')).to.be.true
-      expect(logger.info.calledWith('[2.17.5 migration] Adding serverAddress back to FeedEpisodes table URLs')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Added serverAddress back to Feeds table URLs'), true)
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] Adding serverAddress back to FeedEpisodes table URLs'), true)
 
-      expect(feedEpisodes[0].siteUrl).to.equal('http://server1.com/episode11')
-      expect(feedEpisodes[0].enclosureUrl).to.equal('http://server1.com/enclosure11')
-      expect(feedEpisodes[1].siteUrl).to.equal('http://server1.com/episode12')
-      expect(feedEpisodes[1].enclosureUrl).to.equal('http://server1.com/enclosure12')
-      expect(feedEpisodes[2].siteUrl).to.equal('http://server2.com/episode21')
-      expect(feedEpisodes[2].enclosureUrl).to.equal('http://server2.com/enclosure21')
+      assert.strictEqual(feedEpisodes[0].siteUrl, 'http://server1.com/episode11')
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, 'http://server1.com/enclosure11')
+      assert.strictEqual(feedEpisodes[1].siteUrl, 'http://server1.com/episode12')
+      assert.strictEqual(feedEpisodes[1].enclosureUrl, 'http://server1.com/enclosure12')
+      assert.strictEqual(feedEpisodes[2].siteUrl, 'http://server2.com/episode21')
+      assert.strictEqual(feedEpisodes[2].enclosureUrl, 'http://server2.com/enclosure21')
 
-      expect(logger.info.calledWith('[2.17.5 migration] DOWNGRADE END: 2.17.5-remove-host-from-feed-urls')).to.be.true
+      assert.strictEqual(logger.info.calledWith('[2.17.5 migration] DOWNGRADE END: 2.17.5-remove-host-from-feed-urls'), true)
     })
 
     it('should handle null URLs in Feeds and FeedEpisodes tables', async () => {
@@ -177,11 +178,11 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(feeds[0].feedUrl).to.equal('http://server1.com/feed1')
-      expect(feeds[0].imageUrl).to.be.null
-      expect(feeds[0].siteUrl).to.equal('http://server1.com/site1')
-      expect(feedEpisodes[0].siteUrl).to.be.null
-      expect(feedEpisodes[0].enclosureUrl).to.equal('http://server1.com/enclosure11')
+      assert.strictEqual(feeds[0].feedUrl, 'http://server1.com/feed1')
+      assert.strictEqual(feeds[0].imageUrl, null)
+      assert.strictEqual(feeds[0].siteUrl, 'http://server1.com/site1')
+      assert.strictEqual(feedEpisodes[0].siteUrl, null)
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, 'http://server1.com/enclosure11')
     })
 
     it('should handle null serverAddress in Feeds table', async () => {
@@ -192,11 +193,11 @@ describe('Migration v2.17.4-use-subfolder-for-oidc-redirect-uris', () => {
       const feeds = await Feeds.findAll({ raw: true })
       const feedEpisodes = await FeedEpisodes.findAll({ raw: true })
 
-      expect(feeds[0].feedUrl).to.equal('/feed1')
-      expect(feeds[0].imageUrl).to.equal('/img1')
-      expect(feeds[0].siteUrl).to.equal('/site1')
-      expect(feedEpisodes[0].siteUrl).to.equal('/episode11')
-      expect(feedEpisodes[0].enclosureUrl).to.equal('/enclosure11')
+      assert.strictEqual(feeds[0].feedUrl, '/feed1')
+      assert.strictEqual(feeds[0].imageUrl, '/img1')
+      assert.strictEqual(feeds[0].siteUrl, '/site1')
+      assert.strictEqual(feedEpisodes[0].siteUrl, '/episode11')
+      assert.strictEqual(feedEpisodes[0].enclosureUrl, '/enclosure11')
     })
   })
 })

@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const { up } = require('../../../server/migrations/v2.17.3-fk-constraints')
 const { Sequelize, QueryInterface } = require('sequelize')
@@ -47,29 +48,29 @@ describe('migration-v2.17.3-fk-constraints', () => {
       // Validate that foreign key constraints are missing
       //
       let libraryItemsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(libraryItems);`)
-      expect(libraryItemsForeignKeys).to.have.deep.members([
+      assert.deepStrictEqual([...libraryItemsForeignKeys].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), [...[
         { id: 0, seq: 0, table: 'libraryFolders', from: 'libraryFolderId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' },
         { id: 1, seq: 0, table: 'libraries', from: 'libraryId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }
-      ])
+      ]].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))))
 
       let feedsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(feeds);`)
-      expect(feedsForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
+      assert.deepStrictEqual(feedsForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
 
       let mediaItemSharesForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(mediaItemShares);`)
-      expect(mediaItemSharesForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
+      assert.deepStrictEqual(mediaItemSharesForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
 
       let playbackSessionForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(playbackSessions);`)
-      expect(playbackSessionForeignKeys).to.deep.equal([
+      assert.deepStrictEqual(playbackSessionForeignKeys, [
         { id: 0, seq: 0, table: 'libraries', from: 'libraryId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' },
         { id: 1, seq: 0, table: 'devices', from: 'deviceId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' },
         { id: 2, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }
       ])
 
       let playlistMediaItemsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(playlistMediaItems);`)
-      expect(playlistMediaItemsForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'playlists', from: 'playlistId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
+      assert.deepStrictEqual(playlistMediaItemsForeignKeys, [{ id: 0, seq: 0, table: 'playlists', from: 'playlistId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
 
       let mediaProgressesForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(mediaProgresses);`)
-      expect(mediaProgressesForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
+      assert.deepStrictEqual(mediaProgressesForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'NO ACTION', on_delete: 'NO ACTION', match: 'NONE' }])
 
       //
       // Insert test data into tables
@@ -106,50 +107,50 @@ describe('migration-v2.17.3-fk-constraints', () => {
       // Validate that foreign key constraints are updated
       //
       libraryItemsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(libraryItems);`)
-      expect(libraryItemsForeignKeys).to.have.deep.members([
+      assert.deepStrictEqual([...libraryItemsForeignKeys].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))), [...[
         { id: 0, seq: 0, table: 'libraryFolders', from: 'libraryFolderId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' },
         { id: 1, seq: 0, table: 'libraries', from: 'libraryId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }
-      ])
+      ]].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))))
 
       feedsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(feeds);`)
-      expect(feedsForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }])
+      assert.deepStrictEqual(feedsForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }])
 
       mediaItemSharesForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(mediaItemShares);`)
-      expect(mediaItemSharesForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }])
+      assert.deepStrictEqual(mediaItemSharesForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }])
 
       playbackSessionForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(playbackSessions);`)
-      expect(playbackSessionForeignKeys).to.deep.equal([
+      assert.deepStrictEqual(playbackSessionForeignKeys, [
         { id: 0, seq: 0, table: 'libraries', from: 'libraryId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' },
         { id: 1, seq: 0, table: 'devices', from: 'deviceId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' },
         { id: 2, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'SET NULL', match: 'NONE' }
       ])
 
       playlistMediaItemsForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(playlistMediaItems);`)
-      expect(playlistMediaItemsForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'playlists', from: 'playlistId', to: 'id', on_update: 'CASCADE', on_delete: 'CASCADE', match: 'NONE' }])
+      assert.deepStrictEqual(playlistMediaItemsForeignKeys, [{ id: 0, seq: 0, table: 'playlists', from: 'playlistId', to: 'id', on_update: 'CASCADE', on_delete: 'CASCADE', match: 'NONE' }])
 
       mediaProgressesForeignKeys = await queryInterface.sequelize.query(`PRAGMA foreign_key_list(mediaProgresses);`)
-      expect(mediaProgressesForeignKeys).to.deep.equal([{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'CASCADE', match: 'NONE' }])
+      assert.deepStrictEqual(mediaProgressesForeignKeys, [{ id: 0, seq: 0, table: 'users', from: 'userId', to: 'id', on_update: 'CASCADE', on_delete: 'CASCADE', match: 'NONE' }])
 
       //
       // Validate that data is not changed
       //
       const libraryItemsAfter = await queryInterface.sequelize.query('SELECT * FROM libraryItems;')
-      expect(libraryItemsAfter).to.deep.equal(libraryItems)
+      assert.deepStrictEqual(libraryItemsAfter, libraryItems)
 
       const feedsAfter = await queryInterface.sequelize.query('SELECT * FROM feeds;')
-      expect(feedsAfter).to.deep.equal(feeds)
+      assert.deepStrictEqual(feedsAfter, feeds)
 
       const mediaItemSharesAfter = await queryInterface.sequelize.query('SELECT * FROM mediaItemShares;')
-      expect(mediaItemSharesAfter).to.deep.equal(mediaItemShares)
+      assert.deepStrictEqual(mediaItemSharesAfter, mediaItemShares)
 
       const playbackSessionsAfter = await queryInterface.sequelize.query('SELECT * FROM playbackSessions;')
-      expect(playbackSessionsAfter).to.deep.equal(playbackSessions)
+      assert.deepStrictEqual(playbackSessionsAfter, playbackSessions)
 
       const playlistMediaItemsAfter = await queryInterface.sequelize.query('SELECT * FROM playlistMediaItems;')
-      expect(playlistMediaItemsAfter).to.deep.equal(playlistMediaItems)
+      assert.deepStrictEqual(playlistMediaItemsAfter, playlistMediaItems)
 
       const mediaProgressesAfter = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses;')
-      expect(mediaProgressesAfter).to.deep.equal(mediaProgresses)
+      assert.deepStrictEqual(mediaProgressesAfter, mediaProgresses)
     })
 
     it('should keep correct table foreign key constraints', async () => {
@@ -189,42 +190,42 @@ describe('migration-v2.17.3-fk-constraints', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(14)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.17.3 migration] UPGRADE BEGIN: 2.17.3-fk-constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.17.3 migration] Updating libraryItems constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.17.3 migration] No changes needed for libraryItems constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.17.3 migration] Updating feeds constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.17.3 migration] No changes needed for feeds constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.17.3 migration] Updating mediaItemShares constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.17.3 migration] No changes needed for mediaItemShares constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.17.3 migration] Updating playbackSessions constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.17.3 migration] No changes needed for playbackSessions constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(9).calledWith(sinon.match('[2.17.3 migration] Updating playlistMediaItems constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(10).calledWith(sinon.match('[2.17.3 migration] No changes needed for playlistMediaItems constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(11).calledWith(sinon.match('[2.17.3 migration] Updating mediaProgresses constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(12).calledWith(sinon.match('[2.17.3 migration] No changes needed for mediaProgresses constraints'))).to.be.true
-      expect(loggerInfoStub.getCall(13).calledWith(sinon.match('[2.17.3 migration] UPGRADE END: 2.17.3-fk-constraints'))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 14)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.17.3 migration] UPGRADE BEGIN: 2.17.3-fk-constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.17.3 migration] Updating libraryItems constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.17.3 migration] No changes needed for libraryItems constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.17.3 migration] Updating feeds constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.17.3 migration] No changes needed for feeds constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.17.3 migration] Updating mediaItemShares constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.17.3 migration] No changes needed for mediaItemShares constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.17.3 migration] Updating playbackSessions constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.17.3 migration] No changes needed for playbackSessions constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(9).calledWith(sinon.match('[2.17.3 migration] Updating playlistMediaItems constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(10).calledWith(sinon.match('[2.17.3 migration] No changes needed for playlistMediaItems constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(11).calledWith(sinon.match('[2.17.3 migration] Updating mediaProgresses constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(12).calledWith(sinon.match('[2.17.3 migration] No changes needed for mediaProgresses constraints')), true)
+      assert.strictEqual(loggerInfoStub.getCall(13).calledWith(sinon.match('[2.17.3 migration] UPGRADE END: 2.17.3-fk-constraints')), true)
 
       //
       // Validate that data is not changed
       //
       const libraryItemsAfter = await queryInterface.sequelize.query('SELECT * FROM libraryItems;')
-      expect(libraryItemsAfter).to.deep.equal(libraryItems)
+      assert.deepStrictEqual(libraryItemsAfter, libraryItems)
 
       const feedsAfter = await queryInterface.sequelize.query('SELECT * FROM feeds;')
-      expect(feedsAfter).to.deep.equal(feeds)
+      assert.deepStrictEqual(feedsAfter, feeds)
 
       const mediaItemSharesAfter = await queryInterface.sequelize.query('SELECT * FROM mediaItemShares;')
-      expect(mediaItemSharesAfter).to.deep.equal(mediaItemShares)
+      assert.deepStrictEqual(mediaItemSharesAfter, mediaItemShares)
 
       const playbackSessionsAfter = await queryInterface.sequelize.query('SELECT * FROM playbackSessions;')
-      expect(playbackSessionsAfter).to.deep.equal(playbackSessions)
+      assert.deepStrictEqual(playbackSessionsAfter, playbackSessions)
 
       const playlistMediaItemsAfter = await queryInterface.sequelize.query('SELECT * FROM playlistMediaItems;')
-      expect(playlistMediaItemsAfter).to.deep.equal(playlistMediaItems)
+      assert.deepStrictEqual(playlistMediaItemsAfter, playlistMediaItems)
 
       const mediaProgressesAfter = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses;')
-      expect(mediaProgressesAfter).to.deep.equal(mediaProgresses)
+      assert.deepStrictEqual(mediaProgressesAfter, mediaProgresses)
     })
   })
 })

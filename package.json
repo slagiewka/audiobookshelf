@@ -17,8 +17,8 @@
     "docker-amd64-local": "docker buildx build --platform linux/amd64 --load .  -t advplyr/audiobookshelf-amd64-local",
     "docker-arm64-local": "docker buildx build --platform linux/arm64 --load .  -t advplyr/audiobookshelf-arm64-local",
     "deploy-linux": "node deploy/linux",
-    "test": "mocha",
-    "coverage": "nyc mocha"
+    "test": "node --test --test-concurrency=1",
+    "coverage": "nyc node --test --test-concurrency=1"
   },
   "bin": "index.js",
   "pkg": {
@@ -31,9 +31,6 @@
       "index.js",
       "server/**/*.js"
     ]
-  },
-  "mocha": {
-    "recursive": true
   },
   "author": "advplyr",
   "license": "GPL-3.0",
@@ -60,8 +57,6 @@
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1"

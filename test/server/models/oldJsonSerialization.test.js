@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const { Sequelize } = require('sequelize')
 
 const Database = require('../../../server/Database')
@@ -14,7 +15,7 @@ const Database = require('../../../server/Database')
 function assertExpandedSuperset(minified, expanded, path = '') {
   for (const key of Object.keys(minified)) {
     const keyPath = path ? `${path}.${key}` : key
-    expect(expanded, `missing key ${keyPath}`).to.have.property(key)
+    assert.ok(Object.hasOwn(expanded, key), `missing key ${keyPath}`)
 
     const minifiedValue = minified[key]
     const expandedValue = expanded[key]
@@ -22,10 +23,10 @@ function assertExpandedSuperset(minified, expanded, path = '') {
     if (minifiedValue !== null && typeof minifiedValue === 'object' && !Array.isArray(minifiedValue)) {
       assertExpandedSuperset(minifiedValue, expandedValue, keyPath)
     } else if (Array.isArray(minifiedValue)) {
-      expect(expandedValue, `expected array at ${keyPath}`).to.be.an('array')
-      expect(expandedValue).to.deep.equal(minifiedValue)
+      assert.ok(Array.isArray(expandedValue), `expected array at ${keyPath}`)
+      assert.deepStrictEqual(expandedValue, minifiedValue)
     } else {
-      expect(expandedValue, `value mismatch at ${keyPath}`).to.equal(minifiedValue)
+      assert.strictEqual(expandedValue, minifiedValue, `value mismatch at ${keyPath}`)
     }
   }
 }
@@ -105,14 +106,14 @@ describe('old JSON serialization', () => {
 
       assertExpandedSuperset(minified, expanded)
 
-      expect(expanded).to.have.property('libraryItemId', libraryItem.id)
-      expect(expanded).to.have.property('audioFiles')
-      expect(expanded).to.have.property('chapters')
-      expect(expanded).to.have.property('tracks')
-      expect(expanded.numTracks).to.equal(expanded.tracks.length)
-      expect(expanded.numAudioFiles).to.equal(expanded.audioFiles.length)
-      expect(expanded.numChapters).to.equal(expanded.chapters.length)
-      expect(expanded.ebookFormat).to.equal('epub')
+      assert.strictEqual(expanded['libraryItemId'], libraryItem.id)
+      assert.ok(Object.hasOwn(expanded, 'audioFiles'))
+      assert.ok(Object.hasOwn(expanded, 'chapters'))
+      assert.ok(Object.hasOwn(expanded, 'tracks'))
+      assert.strictEqual(expanded.numTracks, expanded.tracks.length)
+      assert.strictEqual(expanded.numAudioFiles, expanded.audioFiles.length)
+      assert.strictEqual(expanded.numChapters, expanded.chapters.length)
+      assert.strictEqual(expanded.ebookFormat, 'epub')
     })
   })
 
@@ -124,9 +125,9 @@ describe('old JSON serialization', () => {
 
       assertExpandedSuperset(minified, expanded)
 
-      expect(expanded).to.have.property('libraryItemId', libraryItem.id)
-      expect(expanded).to.have.property('episodes')
-      expect(expanded.numEpisodes).to.equal(expanded.episodes.length)
+      assert.strictEqual(expanded['libraryItemId'], libraryItem.id)
+      assert.ok(Object.hasOwn(expanded, 'episodes'))
+      assert.strictEqual(expanded.numEpisodes, expanded.episodes.length)
     })
   })
 
@@ -138,10 +139,10 @@ describe('old JSON serialization', () => {
 
       assertExpandedSuperset(minified, expanded)
 
-      expect(expanded).to.have.property('libraryFiles')
-      expect(expanded).to.have.property('lastScan')
-      expect(expanded.numFiles).to.equal(expanded.libraryFiles.length)
-      expect(expanded.media.numTracks).to.equal(expanded.media.tracks.length)
+      assert.ok(Object.hasOwn(expanded, 'libraryFiles'))
+      assert.ok(Object.hasOwn(expanded, 'lastScan'))
+      assert.strictEqual(expanded.numFiles, expanded.libraryFiles.length)
+      assert.strictEqual(expanded.media.numTracks, expanded.media.tracks.length)
     })
 
     it('podcast library item expanded is a strict superset of minified', async () => {
@@ -151,8 +152,8 @@ describe('old JSON serialization', () => {
 
       assertExpandedSuperset(minified, expanded)
 
-      expect(expanded).to.have.property('libraryFiles')
-      expect(expanded.media.numEpisodes).to.equal(expanded.media.episodes.length)
+      assert.ok(Object.hasOwn(expanded, 'libraryFiles'))
+      assert.strictEqual(expanded.media.numEpisodes, expanded.media.episodes.length)
     })
   })
 })

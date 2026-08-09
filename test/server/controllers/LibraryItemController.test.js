@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const { Sequelize } = require('sequelize')
 const sinon = require('sinon')
 
@@ -95,27 +96,27 @@ describe('LibraryItemController', () => {
       }
       await LibraryItemController.delete.bind(apiRouter)(fakeReq, fakeRes)
 
-      expect(fakeRes.sendStatus.calledWith(200)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(200), true)
 
       // Author 1 should be removed because it has no books
       const author1Exists = await Database.authorModel.checkExistsById(author1Id)
-      expect(author1Exists).to.be.false
+      assert.strictEqual(author1Exists, false)
 
       // Author 2 should not be removed because it still has Book 2
       const author2Exists = await Database.authorModel.checkExistsById(author2Id)
-      expect(author2Exists).to.be.true
+      assert.strictEqual(author2Exists, true)
 
       // Author 3 should not be removed because it has an image
       const author3Exists = await Database.authorModel.checkExistsById(author3Id)
-      expect(author3Exists).to.be.true
+      assert.strictEqual(author3Exists, true)
 
       // Series 1 should be removed because it has no books
       const series1Exists = await Database.seriesModel.checkExistsById(series1Id)
-      expect(series1Exists).to.be.false
+      assert.strictEqual(series1Exists, false)
 
       // Series 2 should not be removed because it still has Book 2
       const series2Exists = await Database.seriesModel.checkExistsById(series2Id)
-      expect(series2Exists).to.be.true
+      assert.strictEqual(series2Exists, true)
     })
 
     it('should remove authors and series with no books on library item batch delete', async () => {
@@ -136,27 +137,27 @@ describe('LibraryItemController', () => {
       }
       await LibraryItemController.batchDelete.bind(apiRouter)(fakeReq, fakeRes)
 
-      expect(fakeRes.sendStatus.calledWith(200)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(200), true)
 
       // Author 1 should be removed because it has no books
       const author1Exists = await Database.authorModel.checkExistsById(author1Id)
-      expect(author1Exists).to.be.false
+      assert.strictEqual(author1Exists, false)
 
       // Author 2 should not be removed because it still has Book 2
       const author2Exists = await Database.authorModel.checkExistsById(author2Id)
-      expect(author2Exists).to.be.true
+      assert.strictEqual(author2Exists, true)
 
       // Author 3 should not be removed because it has an image
       const author3Exists = await Database.authorModel.checkExistsById(author3Id)
-      expect(author3Exists).to.be.true
+      assert.strictEqual(author3Exists, true)
 
       // Series 1 should be removed because it has no books
       const series1Exists = await Database.seriesModel.checkExistsById(series1Id)
-      expect(series1Exists).to.be.false
+      assert.strictEqual(series1Exists, false)
 
       // Series 2 should not be removed because it still has Book 2
       const series2Exists = await Database.seriesModel.checkExistsById(series2Id)
-      expect(series2Exists).to.be.true
+      assert.strictEqual(series2Exists, true)
     })
 
     it('should remove authors and series with no books on library item update media', async () => {
@@ -178,27 +179,27 @@ describe('LibraryItemController', () => {
       }
       await LibraryItemController.updateMedia.bind(apiRouter)(fakeReq, fakeRes)
 
-      expect(fakeRes.json.calledOnce).to.be.true
+      assert.strictEqual(fakeRes.json.calledOnce, true)
 
       // Author 1 should be removed because it has no books
       const author1Exists = await Database.authorModel.checkExistsById(author1Id)
-      expect(author1Exists).to.be.false
+      assert.strictEqual(author1Exists, false)
 
       // Author 2 should not be removed because it still has Book 2
       const author2Exists = await Database.authorModel.checkExistsById(author2Id)
-      expect(author2Exists).to.be.true
+      assert.strictEqual(author2Exists, true)
 
       // Author 3 should not be removed because it has an image
       const author3Exists = await Database.authorModel.checkExistsById(author3Id)
-      expect(author3Exists).to.be.true
+      assert.strictEqual(author3Exists, true)
 
       // Series 1 should be removed because it has no books
       const series1Exists = await Database.seriesModel.checkExistsById(series1Id)
-      expect(series1Exists).to.be.false
+      assert.strictEqual(series1Exists, false)
 
       // Series 2 should not be removed because it still has Book 2
       const series2Exists = await Database.seriesModel.checkExistsById(series2Id)
-      expect(series2Exists).to.be.true
+      assert.strictEqual(series2Exists, true)
     })
   })
 
@@ -250,7 +251,7 @@ describe('LibraryItemController', () => {
         user: userLimitedToLib1()
       }
       await LibraryItemController.batchGet.bind(apiRouter)(fakeReq, fakeRes)
-      expect(fakeRes.sendStatus.calledWith(403)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(403), true)
     })
 
     it('batchGet returns items when the user can access them', async () => {
@@ -260,10 +261,10 @@ describe('LibraryItemController', () => {
         user: userLimitedToLib1()
       }
       await LibraryItemController.batchGet.bind(apiRouter)(fakeReq, fakeRes)
-      expect(fakeRes.json.calledOnce).to.be.true
+      assert.strictEqual(fakeRes.json.calledOnce, true)
       const payload = fakeRes.json.firstCall.args[0]
-      expect(payload.libraryItems).to.have.length(1)
-      expect(payload.libraryItems[0].id).to.equal(itemLib1Id)
+      assert.strictEqual(payload.libraryItems.length, 1)
+      assert.strictEqual(payload.libraryItems[0].id, itemLib1Id)
     })
 
     it('batchUpdate returns 403 for a library item the user cannot access', async () => {
@@ -273,7 +274,7 @@ describe('LibraryItemController', () => {
         body: [{ id: itemLib2Id, mediaPayload: {} }]
       }
       await LibraryItemController.batchUpdate.bind(apiRouter)(fakeReq, fakeRes)
-      expect(fakeRes.sendStatus.calledWith(403)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(403), true)
     })
 
     it('batchUpdate returns 403 when the user lacks canUpdate', async () => {
@@ -285,7 +286,7 @@ describe('LibraryItemController', () => {
         body: [{ id: itemLib1Id, mediaPayload: {} }]
       }
       await LibraryItemController.batchUpdate.bind(apiRouter)(fakeReq, fakeRes)
-      expect(fakeRes.sendStatus.calledWith(403)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(403), true)
     })
 
     it('batchDelete returns 403 for a library item the user cannot access', async () => {
@@ -296,7 +297,7 @@ describe('LibraryItemController', () => {
         body: { libraryItemIds: [itemLib2Id] }
       }
       await LibraryItemController.batchDelete.bind(apiRouter)(fakeReq, fakeRes)
-      expect(fakeRes.sendStatus.calledWith(403)).to.be.true
+      assert.strictEqual(fakeRes.sendStatus.calledWith(403), true)
     })
   })
 })

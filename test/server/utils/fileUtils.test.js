@@ -1,5 +1,5 @@
-const chai = require('chai')
-const expect = chai.expect
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const fileUtils = require('../../../server/utils/fileUtils')
 const fs = require('fs')
@@ -35,7 +35,7 @@ describe('fileUtils', () => {
 
     testCases.forEach(({ path, expected }) => {
       const result = fileUtils.shouldIgnoreFile(path)
-      expect(result).to.equal(expected)
+      assert.strictEqual(result, expected)
     })
   })
 
@@ -103,10 +103,10 @@ describe('fileUtils', () => {
 
     it('should return filtered file list', async () => {
       const files = await fileUtils.recurseFiles('/test')
-      expect(files).to.be.an('array')
-      expect(files).to.have.lengthOf(3)
+      assert.ok(Array.isArray(files))
+      assert.strictEqual(files.length, 3)
 
-      expect(files[0]).to.deep.equal({
+      assert.deepStrictEqual(files[0], {
         name: 'file1.mp3',
         path: 'file1.mp3',
         reldirpath: '',
@@ -115,7 +115,7 @@ describe('fileUtils', () => {
         deep: 0
       })
 
-      expect(files[1]).to.deep.equal({
+      assert.deepStrictEqual(files[1], {
         name: 'ignoremenot.mp3',
         path: 'ignoremenot.mp3',
         reldirpath: '',
@@ -124,7 +124,7 @@ describe('fileUtils', () => {
         deep: 0
       })
 
-      expect(files[2]).to.deep.equal({
+      assert.deepStrictEqual(files[2], {
         name: 'file2.m4b',
         path: 'subfolder/file2.m4b',
         reldirpath: 'subfolder',

@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach } = require('node:test')
 const sinon = require('sinon')
 const fileUtils = require('../../../server/utils/fileUtils')
 const fs = require('../../../server/libs/fsExtra')
@@ -35,7 +36,7 @@ describe('generateFFMetadata', () => {
   it('should generate ffmetadata content with chapters', () => {
     const result = generateFFMetadata(metadata, chapters)
 
-    expect(result).to.equal(';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\ntitle=Chapter 1\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\ntitle=Chapter 2\n')
+    assert.strictEqual(result, ';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\ntitle=Chapter 1\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\ntitle=Chapter 2\n')
   })
 
   it('should generate ffmetadata content without chapters', () => {
@@ -43,7 +44,7 @@ describe('generateFFMetadata', () => {
 
     const result = generateFFMetadata(metadata, chapters)
 
-    expect(result).to.equal(';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n')
+    assert.strictEqual(result, ';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n')
   })
 
   it('should handle chapters with no title', () => {
@@ -54,7 +55,7 @@ describe('generateFFMetadata', () => {
 
     const result = generateFFMetadata(metadata, chapters)
 
-    expect(result).to.equal(';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\n')
+    assert.strictEqual(result, ';FFMETADATA1\ntitle=My Audiobook\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\n')
   })
 
   it('should handle metadata escaping special characters (=, ;, #,  and a newline)', () => {
@@ -63,7 +64,7 @@ describe('generateFFMetadata', () => {
 
     const result = generateFFMetadata(metadata, chapters)
 
-    expect(result).to.equal(';FFMETADATA1\ntitle=My Audiobook\\; with \\= special \\# characters\\\n\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\ntitle=Chapter \\#1\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\ntitle=Chapter 2\n')
+    assert.strictEqual(result, ';FFMETADATA1\ntitle=My Audiobook\\; with \\= special \\# characters\\\n\nartist=John Doe\nalbum=Best Audiobooks\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=0\nEND=1000000\ntitle=Chapter \\#1\n\n[CHAPTER]\nTIMEBASE=1/1000\nSTART=1000000\nEND=2000000\ntitle=Chapter 2\n')
   })
 })
 
@@ -114,27 +115,27 @@ describe('addCoverAndMetadataToFile', () => {
     await addCoverAndMetadataToFile(audioFilePath, coverFilePath, metadataFilePath, track, mimeType, null, ffmpegStub, copyStub)
 
     // Assert
-    expect(ffmpegStub.input.calledThrice).to.be.true
-    expect(ffmpegStub.input.getCall(0).args[0]).to.equal(audioFilePath)
-    expect(ffmpegStub.input.getCall(1).args[0]).to.equal(metadataFilePath)
-    expect(ffmpegStub.input.getCall(2).args[0]).to.equal(coverFilePath)
+    assert.strictEqual(ffmpegStub.input.calledThrice, true)
+    assert.strictEqual(ffmpegStub.input.getCall(0).args[0], audioFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(1).args[0], metadataFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(2).args[0], coverFilePath)
 
-    expect(ffmpegStub.outputOptions.callCount).to.equal(4)
-    expect(ffmpegStub.outputOptions.getCall(0).args[0]).to.deep.equal(['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
-    expect(ffmpegStub.outputOptions.getCall(1).args[0]).to.deep.equal(['-metadata track=1'])
-    expect(ffmpegStub.outputOptions.getCall(2).args[0]).to.deep.equal(['-id3v2_version 3'])
-    expect(ffmpegStub.outputOptions.getCall(3).args[0]).to.deep.equal(['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
+    assert.strictEqual(ffmpegStub.outputOptions.callCount, 4)
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(0).args[0], ['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(1).args[0], ['-metadata track=1'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(2).args[0], ['-id3v2_version 3'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(3).args[0], ['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
 
-    expect(ffmpegStub.output.calledOnce).to.be.true
-    expect(ffmpegStub.output.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(ffmpegStub.output.calledOnce, true)
+    assert.strictEqual(ffmpegStub.output.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
 
-    expect(ffmpegStub.run.calledOnce).to.be.true
+    assert.strictEqual(ffmpegStub.run.calledOnce, true)
 
-    expect(copyStub.calledOnce).to.be.true
-    expect(copyStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
-    expect(copyStub.firstCall.args[1]).to.equal('/path/to/audio/file.mp3')
-    expect(fsRemoveStub.calledOnce).to.be.true
-    expect(fsRemoveStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(copyStub.calledOnce, true)
+    assert.strictEqual(copyStub.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(copyStub.firstCall.args[1], '/path/to/audio/file.mp3')
+    assert.strictEqual(fsRemoveStub.calledOnce, true)
+    assert.strictEqual(fsRemoveStub.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
 
     // Restore the stub
     sinon.restore()
@@ -148,26 +149,26 @@ describe('addCoverAndMetadataToFile', () => {
     await addCoverAndMetadataToFile(audioFilePath, coverFilePath, metadataFilePath, track, mimeType, null, ffmpegStub, copyStub)
 
     // Assert
-    expect(ffmpegStub.input.calledTwice).to.be.true
-    expect(ffmpegStub.input.getCall(0).args[0]).to.equal(audioFilePath)
-    expect(ffmpegStub.input.getCall(1).args[0]).to.equal(metadataFilePath)
+    assert.strictEqual(ffmpegStub.input.calledTwice, true)
+    assert.strictEqual(ffmpegStub.input.getCall(0).args[0], audioFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(1).args[0], metadataFilePath)
 
-    expect(ffmpegStub.outputOptions.callCount).to.equal(4)
-    expect(ffmpegStub.outputOptions.getCall(0).args[0]).to.deep.equal(['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
-    expect(ffmpegStub.outputOptions.getCall(1).args[0]).to.deep.equal(['-metadata track=1'])
-    expect(ffmpegStub.outputOptions.getCall(2).args[0]).to.deep.equal(['-id3v2_version 3'])
-    expect(ffmpegStub.outputOptions.getCall(3).args[0]).to.deep.equal(['-map 0:v?'])
+    assert.strictEqual(ffmpegStub.outputOptions.callCount, 4)
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(0).args[0], ['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(1).args[0], ['-metadata track=1'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(2).args[0], ['-id3v2_version 3'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(3).args[0], ['-map 0:v?'])
 
-    expect(ffmpegStub.output.calledOnce).to.be.true
-    expect(ffmpegStub.output.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(ffmpegStub.output.calledOnce, true)
+    assert.strictEqual(ffmpegStub.output.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
 
-    expect(ffmpegStub.run.calledOnce).to.be.true
+    assert.strictEqual(ffmpegStub.run.calledOnce, true)
 
-    expect(copyStub.callCount).to.equal(1)
-    expect(copyStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
-    expect(copyStub.firstCall.args[1]).to.equal('/path/to/audio/file.mp3')
-    expect(fsRemoveStub.calledOnce).to.be.true
-    expect(fsRemoveStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(copyStub.callCount, 1)
+    assert.strictEqual(copyStub.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(copyStub.firstCall.args[1], '/path/to/audio/file.mp3')
+    assert.strictEqual(fsRemoveStub.calledOnce, true)
+    assert.strictEqual(fsRemoveStub.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
 
     // Restore the stub
     sinon.restore()
@@ -185,28 +186,28 @@ describe('addCoverAndMetadataToFile', () => {
       expect.fail('Expected an error to be thrown')
     } catch (error) {
       // Assert
-      expect(error.message).to.equal('FFmpeg error')
+      assert.strictEqual(error.message, 'FFmpeg error')
     }
 
     // Assert
-    expect(ffmpegStub.input.calledThrice).to.be.true
-    expect(ffmpegStub.input.getCall(0).args[0]).to.equal(audioFilePath)
-    expect(ffmpegStub.input.getCall(1).args[0]).to.equal(metadataFilePath)
-    expect(ffmpegStub.input.getCall(2).args[0]).to.equal(coverFilePath)
+    assert.strictEqual(ffmpegStub.input.calledThrice, true)
+    assert.strictEqual(ffmpegStub.input.getCall(0).args[0], audioFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(1).args[0], metadataFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(2).args[0], coverFilePath)
 
-    expect(ffmpegStub.outputOptions.callCount).to.equal(4)
-    expect(ffmpegStub.outputOptions.getCall(0).args[0]).to.deep.equal(['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
-    expect(ffmpegStub.outputOptions.getCall(1).args[0]).to.deep.equal(['-metadata track=1'])
-    expect(ffmpegStub.outputOptions.getCall(2).args[0]).to.deep.equal(['-id3v2_version 3'])
-    expect(ffmpegStub.outputOptions.getCall(3).args[0]).to.deep.equal(['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
+    assert.strictEqual(ffmpegStub.outputOptions.callCount, 4)
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(0).args[0], ['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(1).args[0], ['-metadata track=1'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(2).args[0], ['-id3v2_version 3'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(3).args[0], ['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
 
-    expect(ffmpegStub.output.calledOnce).to.be.true
-    expect(ffmpegStub.output.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.mp3')
+    assert.strictEqual(ffmpegStub.output.calledOnce, true)
+    assert.strictEqual(ffmpegStub.output.firstCall.args[0], '/path/to/audio/file.tmp.mp3')
 
-    expect(ffmpegStub.run.calledOnce).to.be.true
+    assert.strictEqual(ffmpegStub.run.calledOnce, true)
 
-    expect(copyStub.called).to.be.false
-    expect(fsRemoveStub.called).to.be.false
+    assert.strictEqual(copyStub.called, false)
+    assert.strictEqual(fsRemoveStub.called, false)
 
     // Restore the stub
     sinon.restore()
@@ -221,27 +222,27 @@ describe('addCoverAndMetadataToFile', () => {
     await addCoverAndMetadataToFile(audioFilePath, coverFilePath, metadataFilePath, track, mimeType, null, ffmpegStub, copyStub)
 
     // Assert
-    expect(ffmpegStub.input.calledThrice).to.be.true
-    expect(ffmpegStub.input.getCall(0).args[0]).to.equal(audioFilePath)
-    expect(ffmpegStub.input.getCall(1).args[0]).to.equal(metadataFilePath)
-    expect(ffmpegStub.input.getCall(2).args[0]).to.equal(coverFilePath)
+    assert.strictEqual(ffmpegStub.input.calledThrice, true)
+    assert.strictEqual(ffmpegStub.input.getCall(0).args[0], audioFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(1).args[0], metadataFilePath)
+    assert.strictEqual(ffmpegStub.input.getCall(2).args[0], coverFilePath)
 
-    expect(ffmpegStub.outputOptions.callCount).to.equal(4)
-    expect(ffmpegStub.outputOptions.getCall(0).args[0]).to.deep.equal(['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
-    expect(ffmpegStub.outputOptions.getCall(1).args[0]).to.deep.equal(['-metadata track=1'])
-    expect(ffmpegStub.outputOptions.getCall(2).args[0]).to.deep.equal(['-f mp4'])
-    expect(ffmpegStub.outputOptions.getCall(3).args[0]).to.deep.equal(['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
+    assert.strictEqual(ffmpegStub.outputOptions.callCount, 4)
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(0).args[0], ['-map 0:a', '-map_metadata 1', '-map_metadata 0', '-map_chapters 1', '-c copy'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(1).args[0], ['-metadata track=1'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(2).args[0], ['-f mp4'])
+    assert.deepStrictEqual(ffmpegStub.outputOptions.getCall(3).args[0], ['-map 2:v', '-disposition:v:0 attached_pic', '-metadata:s:v', 'title=Cover', '-metadata:s:v', 'comment=Cover'])
 
-    expect(ffmpegStub.output.calledOnce).to.be.true
-    expect(ffmpegStub.output.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.m4b')
+    assert.strictEqual(ffmpegStub.output.calledOnce, true)
+    assert.strictEqual(ffmpegStub.output.firstCall.args[0], '/path/to/audio/file.tmp.m4b')
 
-    expect(ffmpegStub.run.calledOnce).to.be.true
+    assert.strictEqual(ffmpegStub.run.calledOnce, true)
 
-    expect(copyStub.calledOnce).to.be.true
-    expect(copyStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.m4b')
-    expect(copyStub.firstCall.args[1]).to.equal('/path/to/audio/file.m4b')
-    expect(fsRemoveStub.calledOnce).to.be.true
-    expect(fsRemoveStub.firstCall.args[0]).to.equal('/path/to/audio/file.tmp.m4b')
+    assert.strictEqual(copyStub.calledOnce, true)
+    assert.strictEqual(copyStub.firstCall.args[0], '/path/to/audio/file.tmp.m4b')
+    assert.strictEqual(copyStub.firstCall.args[1], '/path/to/audio/file.m4b')
+    assert.strictEqual(fsRemoveStub.calledOnce, true)
+    assert.strictEqual(fsRemoveStub.firstCall.args[0], '/path/to/audio/file.tmp.m4b')
 
     // Restore the stub
     sinon.restore()

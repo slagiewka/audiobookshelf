@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const Logger = require('../../server/Logger') // Adjust the path as needed
 const { LogLevel } = require('../../server/utils/constants')
@@ -40,7 +41,7 @@ describe('Logger', function () {
       const loggerMethods = Object.keys(LogLevel).map((key) => key.toLowerCase())
 
       loggerMethods.forEach((method) => {
-        expect(Logger).to.have.property(method).that.is.a('function')
+        assert.strictEqual(typeof Logger[method], 'function')
       })
     })
 
@@ -52,7 +53,7 @@ describe('Logger', function () {
       Logger.trace('Test message')
 
       // Assert
-      expect(consoleTraceStub.calledOnce).to.be.true
+      assert.strictEqual(consoleTraceStub.calledOnce, true)
     })
 
     it('should call console.debug for debug logging', function () {
@@ -63,7 +64,7 @@ describe('Logger', function () {
       Logger.debug('Test message')
 
       // Assert
-      expect(consoleDebugStub.calledOnce).to.be.true
+      assert.strictEqual(consoleDebugStub.calledOnce, true)
     })
 
     it('should call console.info for info logging', function () {
@@ -74,7 +75,7 @@ describe('Logger', function () {
       Logger.info('Test message')
 
       // Assert
-      expect(consoleInfoStub.calledOnce).to.be.true
+      assert.strictEqual(consoleInfoStub.calledOnce, true)
     })
 
     it('should call console.warn for warn logging', function () {
@@ -85,7 +86,7 @@ describe('Logger', function () {
       Logger.warn('Test message')
 
       // Assert
-      expect(consoleWarnStub.calledOnce).to.be.true
+      assert.strictEqual(consoleWarnStub.calledOnce, true)
     })
 
     it('should call console.error for error logging', function () {
@@ -96,7 +97,7 @@ describe('Logger', function () {
       Logger.error('Test message')
 
       // Assert
-      expect(consoleErrorStub.calledOnce).to.be.true
+      assert.strictEqual(consoleErrorStub.calledOnce, true)
     })
 
     it('should call console.error for fatal logging', function () {
@@ -107,7 +108,7 @@ describe('Logger', function () {
       Logger.fatal('Test message')
 
       // Assert
-      expect(consoleErrorStub.calledOnce).to.be.true
+      assert.strictEqual(consoleErrorStub.calledOnce, true)
     })
 
     it('should call console.log for note logging', function () {
@@ -118,7 +119,7 @@ describe('Logger', function () {
       Logger.note('Test message')
 
       // Assert
-      expect(consoleLogStub.calledOnce).to.be.true
+      assert.strictEqual(consoleLogStub.calledOnce, true)
     })
   })
 
@@ -131,10 +132,10 @@ describe('Logger', function () {
       // Act
       Logger.debug(...logArgs)
 
-      expect(consoleDebugStub.calledOnce).to.be.true
-      expect(consoleDebugStub.calledWithExactly('[2024-09-10 12:34:56.789] DEBUG:', ...logArgs)).to.be.true
-      expect(Logger.logManager.logToFile.calledOnce).to.be.true
-      expect(
+      assert.strictEqual(consoleDebugStub.calledOnce, true)
+      assert.strictEqual(consoleDebugStub.calledWithExactly('[2024-09-10 12:34:56.789] DEBUG:', ...logArgs), true)
+      assert.strictEqual(Logger.logManager.logToFile.calledOnce, true)
+      assert.strictEqual(
         Logger.logManager.logToFile.calledWithExactly({
           timestamp: '2024-09-10 12:34:56.789',
           source: 'some/source.js',
@@ -142,7 +143,7 @@ describe('Logger', function () {
           levelName: 'DEBUG',
           level: LogLevel.DEBUG
         })
-      ).to.be.true
+      , true)
     })
 
     it('should not log if log level is too low', function () {
@@ -155,8 +156,8 @@ describe('Logger', function () {
       Logger.debug(...logArgs)
 
       // Verify console.debug is not called
-      expect(consoleDebugStub.called).to.be.false
-      expect(Logger.logManager.logToFile.called).to.be.false
+      assert.strictEqual(consoleDebugStub.called, false)
+      assert.strictEqual(Logger.logManager.logToFile.called, false)
     })
 
     it('should emit log to all connected sockets with appropriate log level', async function () {
@@ -172,8 +173,8 @@ describe('Logger', function () {
       await Logger.debug(...logArgs)
 
       // socket1 should receive the log, but not socket2
-      expect(socket1.emit.calledOnce).to.be.true
-      expect(
+      assert.strictEqual(socket1.emit.calledOnce, true)
+      assert.strictEqual(
         socket1.emit.calledWithExactly('log', {
           timestamp: '2024-09-10 12:34:56.789',
           source: 'some/source.js',
@@ -181,9 +182,9 @@ describe('Logger', function () {
           levelName: 'DEBUG',
           level: LogLevel.DEBUG
         })
-      ).to.be.true
+      , true)
 
-      expect(socket2.emit.called).to.be.false
+      assert.strictEqual(socket2.emit.called, false)
     })
 
     it('should log fatal messages to console and file regardless of log level', async function () {
@@ -196,10 +197,10 @@ describe('Logger', function () {
       await Logger.fatal(...logArgs)
 
       // Assert
-      expect(consoleErrorStub.calledOnce).to.be.true
-      expect(consoleErrorStub.calledWithExactly('[2024-09-10 12:34:56.789] FATAL:', ...logArgs)).to.be.true
-      expect(Logger.logManager.logToFile.calledOnce).to.be.true
-      expect(
+      assert.strictEqual(consoleErrorStub.calledOnce, true)
+      assert.strictEqual(consoleErrorStub.calledWithExactly('[2024-09-10 12:34:56.789] FATAL:', ...logArgs), true)
+      assert.strictEqual(Logger.logManager.logToFile.calledOnce, true)
+      assert.strictEqual(
         Logger.logManager.logToFile.calledWithExactly({
           timestamp: '2024-09-10 12:34:56.789',
           source: 'some/source.js',
@@ -207,7 +208,7 @@ describe('Logger', function () {
           levelName: 'FATAL',
           level: LogLevel.FATAL
         })
-      ).to.be.true
+      , true)
     })
 
     it('should log note messages to console and file regardless of log level', async function () {
@@ -220,10 +221,10 @@ describe('Logger', function () {
       await Logger.note(...logArgs)
 
       // Assert
-      expect(consoleLogStub.calledOnce).to.be.true
-      expect(consoleLogStub.calledWithExactly('[2024-09-10 12:34:56.789] NOTE:', ...logArgs)).to.be.true
-      expect(Logger.logManager.logToFile.calledOnce).to.be.true
-      expect(
+      assert.strictEqual(consoleLogStub.calledOnce, true)
+      assert.strictEqual(consoleLogStub.calledWithExactly('[2024-09-10 12:34:56.789] NOTE:', ...logArgs), true)
+      assert.strictEqual(Logger.logManager.logToFile.calledOnce, true)
+      assert.strictEqual(
         Logger.logManager.logToFile.calledWithExactly({
           timestamp: '2024-09-10 12:34:56.789',
           source: 'some/source.js',
@@ -231,7 +232,7 @@ describe('Logger', function () {
           levelName: 'NOTE',
           level: LogLevel.NOTE
         })
-      ).to.be.true
+      , true)
     })
 
     it('should log util.inspect(arg) for non-string objects', async function () {
@@ -244,10 +245,10 @@ describe('Logger', function () {
       await Logger.debug(...logArgs)
 
       // Assert
-      expect(consoleDebugStub.calledOnce).to.be.true
-      expect(consoleDebugStub.calledWithExactly('[2024-09-10 12:34:56.789] DEBUG:', 'Logging object:', obj)).to.be.true
-      expect(Logger.logManager.logToFile.calledOnce).to.be.true
-      expect(Logger.logManager.logToFile.firstCall.args[0].message).to.equal('Logging object: ' + util.inspect(obj))
+      assert.strictEqual(consoleDebugStub.calledOnce, true)
+      assert.strictEqual(consoleDebugStub.calledWithExactly('[2024-09-10 12:34:56.789] DEBUG:', 'Logging object:', obj), true)
+      assert.strictEqual(Logger.logManager.logToFile.calledOnce, true)
+      assert.strictEqual(Logger.logManager.logToFile.firstCall.args[0].message, 'Logging object: ' + util.inspect(obj))
     })
   })
 
@@ -263,8 +264,8 @@ describe('Logger', function () {
       Logger.removeSocketListener('1')
 
       // Assert
-      expect(Logger.socketListeners).to.have.lengthOf(1)
-      expect(Logger.socketListeners[0].id).to.equal('2')
+      assert.strictEqual(Logger.socketListeners.length, 1)
+      assert.strictEqual(Logger.socketListeners[0].id, '2')
     })
   })
 
@@ -277,9 +278,9 @@ describe('Logger', function () {
       Logger.setLogLevel(LogLevel.WARN)
 
       // Assert
-      expect(Logger.logLevel).to.equal(LogLevel.WARN)
-      expect(debugSpy.calledOnce).to.be.true
-      expect(debugSpy.calledWithExactly('Set Log Level to WARN')).to.be.true
+      assert.strictEqual(Logger.logLevel, LogLevel.WARN)
+      assert.strictEqual(debugSpy.calledOnce, true)
+      assert.strictEqual(debugSpy.calledWithExactly('Set Log Level to WARN'), true)
     })
   })
 })

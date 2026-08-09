@@ -1,4 +1,5 @@
-const chai = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const fs = require('../../../server/libs/fsExtra')
 const fileUtils = require('../../../server/utils/fileUtils')
@@ -7,7 +8,6 @@ const path = require('path')
 const BinaryManager = require('../../../server/managers/BinaryManager')
 const { Binary, ffbinaries } = require('../../../server/managers/BinaryManager')
 
-const expect = chai.expect
 
 describe('BinaryManager', () => {
   let binaryManager
@@ -41,11 +41,11 @@ describe('BinaryManager', () => {
 
       await binaryManager.init()
 
-      expect(installStub.called).to.be.false
-      expect(removeOldBinariesStub.called).to.be.false
-      expect(findStub.calledOnce).to.be.true
-      expect(errorStub.called).to.be.false
-      expect(exitStub.called).to.be.false
+      assert.strictEqual(installStub.called, false)
+      assert.strictEqual(removeOldBinariesStub.called, false)
+      assert.strictEqual(findStub.calledOnce, true)
+      assert.strictEqual(errorStub.called, false)
+      assert.strictEqual(exitStub.called, false)
     })
 
     it('should install missing binaries', async () => {
@@ -60,11 +60,11 @@ describe('BinaryManager', () => {
 
       await binaryManager.init()
 
-      expect(findStub.calledTwice).to.be.true
-      expect(installStub.calledOnce).to.be.true
-      expect(removeOldBinariesStub.calledOnce).to.be.true
-      expect(errorStub.called).to.be.false
-      expect(exitStub.called).to.be.false
+      assert.strictEqual(findStub.calledTwice, true)
+      assert.strictEqual(installStub.calledOnce, true)
+      assert.strictEqual(removeOldBinariesStub.calledOnce, true)
+      assert.strictEqual(errorStub.called, false)
+      assert.strictEqual(exitStub.called, false)
     })
 
     it('exit if binaries are not found after installation', async () => {
@@ -78,12 +78,12 @@ describe('BinaryManager', () => {
 
       await binaryManager.init()
 
-      expect(findStub.calledTwice).to.be.true
-      expect(installStub.calledOnce).to.be.true
-      expect(removeOldBinariesStub.calledOnce).to.be.true
-      expect(errorStub.calledOnce).to.be.true
-      expect(exitStub.calledOnce).to.be.true
-      expect(exitStub.calledWith(1)).to.be.true
+      assert.strictEqual(findStub.calledTwice, true)
+      assert.strictEqual(installStub.calledOnce, true)
+      assert.strictEqual(removeOldBinariesStub.calledOnce, true)
+      assert.strictEqual(errorStub.calledOnce, true)
+      assert.strictEqual(exitStub.calledOnce, true)
+      assert.strictEqual(exitStub.calledWith(1), true)
     })
 
     it('should not exit if binaries are not found but not required', async () => {
@@ -98,11 +98,11 @@ describe('BinaryManager', () => {
 
       await binaryManager.init()
 
-      expect(findStub.calledTwice).to.be.true
-      expect(installStub.calledOnce).to.be.true
-      expect(removeOldBinariesStub.calledOnce).to.be.true
-      expect(errorStub.called).to.be.false
-      expect(exitStub.called).to.be.false
+      assert.strictEqual(findStub.calledTwice, true)
+      assert.strictEqual(installStub.calledOnce, true)
+      assert.strictEqual(removeOldBinariesStub.calledOnce, true)
+      assert.strictEqual(errorStub.called, false)
+      assert.strictEqual(exitStub.called, false)
     })
   })
 
@@ -129,9 +129,9 @@ describe('BinaryManager', () => {
 
       const result = await binaryManager.findRequiredBinaries()
 
-      expect(result).to.deep.equal(missingBinaries)
-      expect(findBinaryStub.calledOnce).to.be.true
-      expect(process.env.FFMPEG_PATH).to.equal(pathToFFmpeg)
+      assert.deepStrictEqual(result, missingBinaries)
+      assert.strictEqual(findBinaryStub.calledOnce, true)
+      assert.strictEqual(process.env.FFMPEG_PATH, pathToFFmpeg)
     })
 
     it('should add missing binaries to result', async () => {
@@ -141,9 +141,9 @@ describe('BinaryManager', () => {
 
       const result = await binaryManager.findRequiredBinaries()
 
-      expect(result).to.deep.equal(missingBinaries)
-      expect(findBinaryStub.calledOnce).to.be.true
-      expect(process.env.FFMPEG_PATH).to.be.undefined
+      assert.deepStrictEqual(result, missingBinaries)
+      assert.strictEqual(findBinaryStub.calledOnce, true)
+      assert.strictEqual(process.env.FFMPEG_PATH, undefined)
     })
   })
 
@@ -172,8 +172,8 @@ describe('BinaryManager', () => {
 
       await binaryManager.install(binaries)
 
-      expect(isWritableStub.called).to.be.false
-      expect(downloadBinaryStub.called).to.be.false
+      assert.strictEqual(isWritableStub.called, false)
+      assert.strictEqual(downloadBinaryStub.called, false)
     })
 
     it('should install binaries in main install path if has access', async () => {
@@ -184,9 +184,9 @@ describe('BinaryManager', () => {
 
       await binaryManager.install(binaries)
 
-      expect(isWritableStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledWith(destination)).to.be.true
+      assert.strictEqual(isWritableStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledWith(destination), true)
     })
 
     it('should install binaries in alt install path if has no access to main', async () => {
@@ -198,9 +198,9 @@ describe('BinaryManager', () => {
 
       await binaryManager.install(binaries)
 
-      expect(isWritableStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledWith(destination)).to.be.true
+      assert.strictEqual(isWritableStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledWith(destination), true)
     })
   })
 })
@@ -240,9 +240,9 @@ describe('Binary', () => {
 
       const result = await binary.find(binary.mainInstallDir, binary.altInstallDir)
 
-      expect(result).to.equal(defaultPath)
-      expect(isGoodStub.calledOnce).to.be.true
-      expect(isGoodStub.calledWith(defaultPath)).to.be.true
+      assert.strictEqual(result, defaultPath)
+      assert.strictEqual(isGoodStub.calledOnce, true)
+      assert.strictEqual(isGoodStub.calledWith(defaultPath), true)
     })
 
     it('should return the whichPath if it exists and is a good binary', async () => {
@@ -253,10 +253,10 @@ describe('Binary', () => {
 
       const result = await binary.find(binary.mainInstallDir, binary.altInstallDir)
 
-      expect(result).to.equal(whichPath)
-      expect(isGoodStub.calledTwice).to.be.true
-      expect(isGoodStub.calledWith(undefined)).to.be.true
-      expect(isGoodStub.calledWith(whichPath)).to.be.true
+      assert.strictEqual(result, whichPath)
+      assert.strictEqual(isGoodStub.calledTwice, true)
+      assert.strictEqual(isGoodStub.calledWith(undefined), true)
+      assert.strictEqual(isGoodStub.calledWith(whichPath), true)
     })
 
     it('should return the mainInstallPath if it exists and is a good binary', async () => {
@@ -268,11 +268,11 @@ describe('Binary', () => {
 
       const result = await binary.find(binary.mainInstallDir, binary.altInstallDir)
 
-      expect(result).to.equal(mainInstallPath)
-      expect(isGoodStub.callCount).to.be.equal(3)
-      expect(isGoodStub.calledWith(undefined)).to.be.true
-      expect(isGoodStub.calledWith(null)).to.be.true
-      expect(isGoodStub.calledWith(mainInstallPath)).to.be.true
+      assert.strictEqual(result, mainInstallPath)
+      assert.strictEqual(isGoodStub.callCount, 3)
+      assert.strictEqual(isGoodStub.calledWith(undefined), true)
+      assert.strictEqual(isGoodStub.calledWith(null), true)
+      assert.strictEqual(isGoodStub.calledWith(mainInstallPath), true)
     })
 
     it('should return the altInstallPath if it exists and is a good binary', async () => {
@@ -285,12 +285,12 @@ describe('Binary', () => {
 
       const result = await binary.find(binary.mainInstallDir, binary.altInstallDir)
 
-      expect(result).to.equal(altInstallPath)
-      expect(isGoodStub.callCount).to.be.equal(4)
-      expect(isGoodStub.calledWith(undefined)).to.be.true
-      expect(isGoodStub.calledWith(null)).to.be.true
-      expect(isGoodStub.calledWith(mainInstallPath)).to.be.true
-      expect(isGoodStub.calledWith(altInstallPath)).to.be.true
+      assert.strictEqual(result, altInstallPath)
+      assert.strictEqual(isGoodStub.callCount, 4)
+      assert.strictEqual(isGoodStub.calledWith(undefined), true)
+      assert.strictEqual(isGoodStub.calledWith(null), true)
+      assert.strictEqual(isGoodStub.calledWith(mainInstallPath), true)
+      assert.strictEqual(isGoodStub.calledWith(altInstallPath), true)
     })
 
     it('should return null if no good binary is found', async () => {
@@ -303,12 +303,12 @@ describe('Binary', () => {
 
       const result = await binary.find(binary.mainInstallDir, binary.altInstallDir)
 
-      expect(result).to.be.null
-      expect(isGoodStub.callCount).to.be.equal(4)
-      expect(isGoodStub.calledWith(undefined)).to.be.true
-      expect(isGoodStub.calledWith(null)).to.be.true
-      expect(isGoodStub.calledWith(mainInstallPath)).to.be.true
-      expect(isGoodStub.calledWith(altInstallPath)).to.be.true
+      assert.strictEqual(result, null)
+      assert.strictEqual(isGoodStub.callCount, 4)
+      assert.strictEqual(isGoodStub.calledWith(undefined), true)
+      assert.strictEqual(isGoodStub.calledWith(null), true)
+      assert.strictEqual(isGoodStub.calledWith(mainInstallPath), true)
+      assert.strictEqual(isGoodStub.calledWith(altInstallPath), true)
     })
   })
 
@@ -340,9 +340,9 @@ describe('Binary', () => {
 
       const result = await binary.isGood(null)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.called).to.be.false
-      expect(execStub.called).to.be.false
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.called, false)
+      assert.strictEqual(execStub.called, false)
     })
 
     it('should return false if binaryPath does not exist', async () => {
@@ -350,10 +350,10 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledOnce).to.be.true
-      expect(fsPathExistsStub.calledWith(binaryPath)).to.be.true
-      expect(execStub.called).to.be.false
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledOnce, true)
+      assert.strictEqual(fsPathExistsStub.calledWith(binaryPath), true)
+      assert.strictEqual(execStub.called, false)
     })
 
     it('should return false if failed to check version of binary', async () => {
@@ -362,11 +362,11 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledOnce).to.be.true
-      expect(fsPathExistsStub.calledWith(binaryPath)).to.be.true
-      expect(execStub.calledOnce).to.be.true
-      expect(execStub.calledWith(execCommand)).to.be.true
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledOnce, true)
+      assert.strictEqual(fsPathExistsStub.calledWith(binaryPath), true)
+      assert.strictEqual(execStub.calledOnce, true)
+      assert.strictEqual(execStub.calledWith(execCommand), true)
     })
 
     it('should return false if version is not found', async () => {
@@ -376,11 +376,11 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledOnce).to.be.true
-      expect(fsPathExistsStub.calledWith(binaryPath)).to.be.true
-      expect(execStub.calledOnce).to.be.true
-      expect(execStub.calledWith(execCommand)).to.be.true
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledOnce, true)
+      assert.strictEqual(fsPathExistsStub.calledWith(binaryPath), true)
+      assert.strictEqual(execStub.calledOnce, true)
+      assert.strictEqual(execStub.calledWith(execCommand), true)
     })
 
     it('should return false if version is found but does not match a good version', async () => {
@@ -390,11 +390,11 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledOnce).to.be.true
-      expect(fsPathExistsStub.calledWith(binaryPath)).to.be.true
-      expect(execStub.calledOnce).to.be.true
-      expect(execStub.calledWith(execCommand)).to.be.true
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledOnce, true)
+      assert.strictEqual(fsPathExistsStub.calledWith(binaryPath), true)
+      assert.strictEqual(execStub.calledOnce, true)
+      assert.strictEqual(execStub.calledWith(execCommand), true)
     })
 
     it('should return true if version is found and matches a good version', async () => {
@@ -404,11 +404,11 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.true
-      expect(fsPathExistsStub.calledOnce).to.be.true
-      expect(fsPathExistsStub.calledWith(binaryPath)).to.be.true
-      expect(execStub.calledOnce).to.be.true
-      expect(execStub.calledWith(execCommand)).to.be.true
+      assert.strictEqual(result, true)
+      assert.strictEqual(fsPathExistsStub.calledOnce, true)
+      assert.strictEqual(fsPathExistsStub.calledWith(binaryPath), true)
+      assert.strictEqual(execStub.calledOnce, true)
+      assert.strictEqual(execStub.calledWith(execCommand), true)
     })
 
     it('should check library version file', async () => {
@@ -419,12 +419,12 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.true
-      expect(fsPathExistsStub.calledTwice).to.be.true
-      expect(fsPathExistsStub.firstCall.args[0]).to.be.equal(binaryPath)
-      expect(fsPathExistsStub.secondCall.args[0]).to.be.equal(binaryPath + '.ver')
-      expect(fsReadFileStub.calledOnce).to.be.true
-      expect(fsReadFileStub.calledWith(binaryPath + '.ver'), 'utf8').to.be.true
+      assert.strictEqual(result, true)
+      assert.strictEqual(fsPathExistsStub.calledTwice, true)
+      assert.strictEqual(fsPathExistsStub.firstCall.args[0], binaryPath)
+      assert.strictEqual(fsPathExistsStub.secondCall.args[0], binaryPath + '.ver')
+      assert.strictEqual(fsReadFileStub.calledOnce, true)
+      assert.strictEqual(fsReadFileStub.calledWith(binaryPath + '.ver', 'utf8'), true)
     })
 
     it('should return false if library version file does not exist', async () => {
@@ -435,11 +435,11 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledTwice).to.be.true
-      expect(fsPathExistsStub.firstCall.args[0]).to.be.equal(binaryPath)
-      expect(fsPathExistsStub.secondCall.args[0]).to.be.equal(binaryPath + '.ver')
-      expect(fsReadFileStub.called).to.be.false
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledTwice, true)
+      assert.strictEqual(fsPathExistsStub.firstCall.args[0], binaryPath)
+      assert.strictEqual(fsPathExistsStub.secondCall.args[0], binaryPath + '.ver')
+      assert.strictEqual(fsReadFileStub.called, false)
     })
 
     it('should return false if library version does not match a valid version', async () => {
@@ -450,12 +450,12 @@ describe('Binary', () => {
 
       const result = await binary.isGood(binaryPath)
 
-      expect(result).to.be.false
-      expect(fsPathExistsStub.calledTwice).to.be.true
-      expect(fsPathExistsStub.firstCall.args[0]).to.be.equal(binaryPath)
-      expect(fsPathExistsStub.secondCall.args[0]).to.be.equal(binaryPath + '.ver')
-      expect(fsReadFileStub.calledOnce).to.be.true
-      expect(fsReadFileStub.calledWith(binaryPath + '.ver'), 'utf8').to.be.true
+      assert.strictEqual(result, false)
+      assert.strictEqual(fsPathExistsStub.calledTwice, true)
+      assert.strictEqual(fsPathExistsStub.firstCall.args[0], binaryPath)
+      assert.strictEqual(fsPathExistsStub.secondCall.args[0], binaryPath + '.ver')
+      assert.strictEqual(fsReadFileStub.calledOnce, true)
+      assert.strictEqual(fsReadFileStub.calledWith(binaryPath + '.ver', 'utf8'), true)
     })
   })
 
@@ -482,7 +482,7 @@ describe('Binary', () => {
 
       const result = binary.getFileName()
 
-      expect(result).to.equal('ffmpeg.exe')
+      assert.strictEqual(result, 'ffmpeg.exe')
     })
 
     it('should return the executable file name without extension on linux', () => {
@@ -491,7 +491,7 @@ describe('Binary', () => {
 
       const result = binary.getFileName()
 
-      expect(result).to.equal('ffmpeg')
+      assert.strictEqual(result, 'ffmpeg')
     })
 
     it('should return the library file name with .dll extension on Windows', () => {
@@ -500,7 +500,7 @@ describe('Binary', () => {
 
       const result = binary.getFileName()
 
-      expect(result).to.equal('ffmpeg.dll')
+      assert.strictEqual(result, 'ffmpeg.dll')
     })
 
     it('should return the library file name with .so extension on linux', () => {
@@ -509,7 +509,7 @@ describe('Binary', () => {
 
       const result = binary.getFileName()
 
-      expect(result).to.equal('ffmpeg.so')
+      assert.strictEqual(result, 'ffmpeg.so')
     })
 
     it('should return the file name without extension for other types', () => {
@@ -518,7 +518,7 @@ describe('Binary', () => {
 
       const result = binary.getFileName()
 
-      expect(result).to.equal('ffmpeg')
+      assert.strictEqual(result, 'ffmpeg')
     })
   })
 
@@ -543,8 +543,8 @@ describe('Binary', () => {
 
       await binary.download(destination)
 
-      expect(downloadBinaryStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledWith('ffmpeg', '5.1', destination)).to.be.true
+      assert.strictEqual(downloadBinaryStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledWith('ffmpeg', '5.1', destination), true)
     })
 
     it('should write a version file for libraries', async () => {
@@ -554,10 +554,10 @@ describe('Binary', () => {
 
       await binary.download(destination)
 
-      expect(downloadBinaryStub.calledOnce).to.be.true
-      expect(downloadBinaryStub.calledWith('libavcodec', '5.1', destination)).to.be.true
-      expect(fsWriteFileStub.calledOnce).to.be.true
-      expect(fsWriteFileStub.calledWith(versionFilePath, '5.1')).to.be.true
+      assert.strictEqual(downloadBinaryStub.calledOnce, true)
+      assert.strictEqual(downloadBinaryStub.calledWith('libavcodec', '5.1', destination), true)
+      assert.strictEqual(fsWriteFileStub.calledOnce, true)
+      assert.strictEqual(fsWriteFileStub.calledWith(versionFilePath, '5.1'), true)
     })
   })
 })

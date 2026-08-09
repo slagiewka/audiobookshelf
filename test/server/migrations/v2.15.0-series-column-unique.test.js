@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const { up, down } = require('../../../server/migrations/v2.15.0-series-column-unique')
 const { Sequelize } = require('sequelize')
@@ -6,6 +7,10 @@ const Logger = require('../../../server/Logger')
 const { query } = require('express')
 const { logger } = require('sequelize/lib/utils/logger')
 const e = require('express')
+
+function partialDeepStrictEqual(actual, expected) {
+  assert.deepStrictEqual(Object.fromEntries(Object.keys(expected).map((key) => [key, actual[key]])), expected)
+}
 
 describe('migration-v2.15.0-series-column-unique', () => {
   let sequelize
@@ -104,24 +109,24 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(6)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 6)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // Validate rows in tables
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(3)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
-      expect(series).to.deep.include({ id: series2Id, name: 'Series 2', libraryId: library2Id })
-      expect(series).to.deep.include({ id: series3Id, name: 'Series 3', libraryId: library1Id })
+      assert.strictEqual(series.length, 3)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series2Id, name: 'Series 2', libraryId: library2Id }); return true } catch { return false } }))
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series3Id, name: 'Series 3', libraryId: library1Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "sequence", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(3)
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id, sequence: '1', bookId: book1Id, seriesId: series1Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries2Id, sequence: null, bookId: book2Id, seriesId: series2Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries3Id, sequence: '1', bookId: book3Id, seriesId: series3Id })
+      assert.strictEqual(bookSeries.length, 3)
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id, sequence: '1', bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries2Id, sequence: null, bookId: book2Id, seriesId: series2Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries3Id, sequence: '1', bookId: book3Id, seriesId: series3Id }); return true } catch { return false } }))
     })
     it('upgrade with duplicate series and no sequence', async () => {
       // Add some entries to the Series table using the UUID for the ids
@@ -145,29 +150,29 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(8)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 2 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 3" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 8)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 2 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 3" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // Validate rows
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(3)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
-      expect(series).to.deep.include({ id: series2Id, name: 'Series 2', libraryId: library2Id })
-      expect(series).to.deep.include({ id: series3Id, name: 'Series 3', libraryId: library1Id })
+      assert.strictEqual(series.length, 3)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series2Id, name: 'Series 2', libraryId: library2Id }); return true } catch { return false } }))
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series3Id, name: 'Series 3', libraryId: library1Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(6)
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id, bookId: book1Id, seriesId: series1Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries2Id, bookId: book2Id, seriesId: series2Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries3Id, bookId: book3Id, seriesId: series3Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id_dup, bookId: book4Id, seriesId: series1Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries3Id_dup, bookId: book5Id, seriesId: series3Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id_dup2, bookId: book6Id, seriesId: series1Id })
+      assert.strictEqual(bookSeries.length, 6)
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id, bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries2Id, bookId: book2Id, seriesId: series2Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries3Id, bookId: book3Id, seriesId: series3Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id_dup, bookId: book4Id, seriesId: series1Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries3Id_dup, bookId: book5Id, seriesId: series3Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id_dup2, bookId: book6Id, seriesId: series1Id }); return true } catch { return false } }))
     })
     it('upgrade with same series name in different libraries', async () => {
       // Add some entries to the Series table using the UUID for the ids
@@ -183,22 +188,22 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(6)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 6)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // Validate rows
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(2)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
-      expect(series).to.deep.include({ id: series2Id, name: 'Series 1', libraryId: library2Id })
+      assert.strictEqual(series.length, 2)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series2Id, name: 'Series 1', libraryId: library2Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(2)
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id, bookId: book1Id, seriesId: series1Id })
-      expect(bookSeries).to.deep.include({ id: bookSeries2Id, bookId: book2Id, seriesId: series2Id })
+      assert.strictEqual(bookSeries.length, 2)
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id, bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries2Id, bookId: book2Id, seriesId: series2Id }); return true } catch { return false } }))
     })
     it('upgrade with one book in two of the same series, both sequence are null', async () => {
       // Create two different series with the same name in the same library
@@ -214,24 +219,24 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(9)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 9)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // validate rows
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(1)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
+      assert.strictEqual(series.length, 1)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "sequence", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(1)
+      assert.strictEqual(bookSeries.length, 1)
       // Keep BookSeries 2 because it was edited last from cleaning up duplicate books
-      expect(bookSeries).to.deep.include({ id: bookSeries2Id, sequence: null, bookId: book1Id, seriesId: series1Id })
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries2Id, sequence: null, bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
     })
     it('upgrade with one book in two of the same series, one sequence is null', async () => {
       // Create two different series with the same name in the same library
@@ -247,23 +252,23 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(9)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 9)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // validate rows
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(1)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
+      assert.strictEqual(series.length, 1)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "sequence", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(1)
-      expect(bookSeries).to.deep.include({ id: bookSeries1Id, sequence: '1', bookId: book1Id, seriesId: series1Id })
+      assert.strictEqual(bookSeries.length, 1)
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries1Id, sequence: '1', bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
     })
     it('upgrade with one book in two of the same series, both sequence are not null', async () => {
       // Create two different series with the same name in the same library
@@ -279,24 +284,24 @@ describe('migration-v2.15.0-series-column-unique', () => {
 
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(9)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 9)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 1 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplicating series "Series 1" in library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Deduplicating bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] Finished cleanup of bookId 4a38b6e5-0ae4-4de4-b119-4e33891bd63f in series "Series 1" of library 3a5a1c7c-a914-472e-88b0-b871ceae63e7')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
       // validate rows
       const series = await queryInterface.sequelize.query('SELECT "id", "name", "libraryId" FROM Series', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(series).to.have.length(1)
-      expect(series).to.deep.include({ id: series1Id, name: 'Series 1', libraryId: library1Id })
+      assert.strictEqual(series.length, 1)
+      assert.ok(series.some((item) => { try { partialDeepStrictEqual(item, { id: series1Id, name: 'Series 1', libraryId: library1Id }); return true } catch { return false } }))
       const bookSeries = await queryInterface.sequelize.query('SELECT "id", "sequence", "bookId", "seriesId" FROM BookSeries', { type: queryInterface.sequelize.QueryTypes.SELECT })
-      expect(bookSeries).to.have.length(1)
+      assert.strictEqual(bookSeries.length, 1)
       // Keep BookSeries 2 because it is the lower sequence number
-      expect(bookSeries).to.deep.include({ id: bookSeries2Id, sequence: '2', bookId: book1Id, seriesId: series1Id })
+      assert.ok(bookSeries.some((item) => { try { partialDeepStrictEqual(item, { id: bookSeries2Id, sequence: '2', bookId: book1Id, seriesId: series1Id }); return true } catch { return false } }))
     })
   })
 
@@ -324,19 +329,19 @@ describe('migration-v2.15.0-series-column-unique', () => {
       await up({ context: { queryInterface, logger: Logger } })
       await down({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(9)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete'))).to.be.true
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] DOWNGRADE BEGIN: 2.15.0-series-column-unique '))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Removed unique index on Series.name and Series.libraryId'))).to.be.true
-      expect(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] DOWNGRADE END: 2.15.0-series-column-unique '))).to.be.true
+      assert.strictEqual(loggerInfoStub.callCount, 9)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('[2.15.0 migration] UPGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('[2.15.0 migration] Reindexing NOCASE indices to fix potential hidden corruption issues')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('[2.15.0 migration] Found 0 duplicate series')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('[2.15.0 migration] Deduplication complete')), true)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('[2.15.0 migration] Added unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('[2.15.0 migration] UPGRADE END: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('[2.15.0 migration] DOWNGRADE BEGIN: 2.15.0-series-column-unique ')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('[2.15.0 migration] Removed unique index on Series.name and Series.libraryId')), true)
+      assert.strictEqual(loggerInfoStub.getCall(8).calledWith(sinon.match('[2.15.0 migration] DOWNGRADE END: 2.15.0-series-column-unique ')), true)
       // Ensure index does not exist
       const indexes = await queryInterface.showIndex('Series')
-      expect(indexes).to.not.deep.include({ tableName: 'Series', unique: true, fields: ['name', 'libraryId'], name: 'unique_series_name_per_library' })
+      assert.ok(!indexes.some((item) => { try { partialDeepStrictEqual(item, { tableName: 'Series', unique: true, fields: ['name', 'libraryId'], name: 'unique_series_name_per_library' }); return true } catch { return false } }))
     })
   })
 })

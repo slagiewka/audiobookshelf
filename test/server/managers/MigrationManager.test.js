@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const { Sequelize } = require('sequelize')
 const fs = require('../../../server/libs/fsExtra')
@@ -63,14 +64,14 @@ describe('MigrationManager', () => {
       await migrationManager.init(serverVersion)
 
       // Assert
-      expect(fsEnsureDirStub.calledOnce).to.be.true
-      expect(fsEnsureDirStub.calledWith(migrationManager.migrationsDir)).to.be.true
-      expect(migrationManager.serverVersion).to.equal(serverVersion)
-      expect(migrationManager.sequelize).to.equal(sequelizeStub)
-      expect(migrationManager.migrationsDir).to.equal(path.join(__dirname, 'migrations'))
-      expect(migrationManager.copyMigrationsToConfigDir.calledOnce).to.be.true
-      expect(migrationManager.updateMaxVersion.calledOnce).to.be.true
-      expect(migrationManager.initialized).to.be.true
+      assert.strictEqual(fsEnsureDirStub.calledOnce, true)
+      assert.strictEqual(fsEnsureDirStub.calledWith(migrationManager.migrationsDir), true)
+      assert.strictEqual(migrationManager.serverVersion, serverVersion)
+      assert.strictEqual(migrationManager.sequelize, sequelizeStub)
+      assert.strictEqual(migrationManager.migrationsDir, path.join(__dirname, 'migrations'))
+      assert.strictEqual(migrationManager.copyMigrationsToConfigDir.calledOnce, true)
+      assert.strictEqual(migrationManager.updateMaxVersion.calledOnce, true)
+      assert.strictEqual(migrationManager.initialized, true)
     })
 
     it('should throw error if serverVersion is not provided', async () => {
@@ -79,7 +80,7 @@ describe('MigrationManager', () => {
         const result = await migrationManager.init()
         expect.fail('Expected init to throw an error, but it did not.')
       } catch (error) {
-        expect(error.message).to.equal('Invalid server version: undefined. Expected a version tag like v1.2.3.')
+        assert.strictEqual(error.message, 'Invalid server version: undefined. Expected a version tag like v1.2.3.')
       }
     })
   })
@@ -99,14 +100,14 @@ describe('MigrationManager', () => {
       await migrationManager.runMigrations()
 
       // Assert
-      expect(migrationManager.initUmzug.calledOnce).to.be.true
-      expect(umzugStub.up.calledOnce).to.be.true
-      expect(umzugStub.up.calledWith({ migrations: ['v1.1.1-migration.js', 'v1.2.0-migration.js'], rerun: 'ALLOW' })).to.be.true
-      expect(fsCopyStub.calledOnce).to.be.true
-      expect(fsCopyStub.calledWith(path.join(configPath, 'absdatabase.sqlite'), path.join(configPath, 'absdatabase.backup.sqlite'))).to.be.true
-      expect(fsRemoveStub.calledOnce).to.be.true
-      expect(fsRemoveStub.calledWith(path.join(configPath, 'absdatabase.backup.sqlite'))).to.be.true
-      expect(loggerInfoStub.calledWith(sinon.match('Migrations successfully applied'))).to.be.true
+      assert.strictEqual(migrationManager.initUmzug.calledOnce, true)
+      assert.strictEqual(umzugStub.up.calledOnce, true)
+      assert.strictEqual(umzugStub.up.calledWith({ migrations: ['v1.1.1-migration.js', 'v1.2.0-migration.js'], rerun: 'ALLOW' }), true)
+      assert.strictEqual(fsCopyStub.calledOnce, true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(configPath, 'absdatabase.sqlite'), path.join(configPath, 'absdatabase.backup.sqlite')), true)
+      assert.strictEqual(fsRemoveStub.calledOnce, true)
+      assert.strictEqual(fsRemoveStub.calledWith(path.join(configPath, 'absdatabase.backup.sqlite')), true)
+      assert.strictEqual(loggerInfoStub.calledWith(sinon.match('Migrations successfully applied')), true)
     })
 
     it('should run down migrations successfully', async () => {
@@ -123,14 +124,14 @@ describe('MigrationManager', () => {
       await migrationManager.runMigrations()
 
       // Assert
-      expect(migrationManager.initUmzug.calledOnce).to.be.true
-      expect(umzugStub.down.calledOnce).to.be.true
-      expect(umzugStub.down.calledWith({ migrations: ['v1.2.0-migration.js', 'v1.1.1-migration.js'], rerun: 'ALLOW' })).to.be.true
-      expect(fsCopyStub.calledOnce).to.be.true
-      expect(fsCopyStub.calledWith(path.join(configPath, 'absdatabase.sqlite'), path.join(configPath, 'absdatabase.backup.sqlite'))).to.be.true
-      expect(fsRemoveStub.calledOnce).to.be.true
-      expect(fsRemoveStub.calledWith(path.join(configPath, 'absdatabase.backup.sqlite'))).to.be.true
-      expect(loggerInfoStub.calledWith(sinon.match('Migrations successfully applied'))).to.be.true
+      assert.strictEqual(migrationManager.initUmzug.calledOnce, true)
+      assert.strictEqual(umzugStub.down.calledOnce, true)
+      assert.strictEqual(umzugStub.down.calledWith({ migrations: ['v1.2.0-migration.js', 'v1.1.1-migration.js'], rerun: 'ALLOW' }), true)
+      assert.strictEqual(fsCopyStub.calledOnce, true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(configPath, 'absdatabase.sqlite'), path.join(configPath, 'absdatabase.backup.sqlite')), true)
+      assert.strictEqual(fsRemoveStub.calledOnce, true)
+      assert.strictEqual(fsRemoveStub.calledWith(path.join(configPath, 'absdatabase.backup.sqlite')), true)
+      assert.strictEqual(loggerInfoStub.calledWith(sinon.match('Migrations successfully applied')), true)
     })
 
     it('should log that migrations will be skipped if database is new', async () => {
@@ -142,10 +143,10 @@ describe('MigrationManager', () => {
       await migrationManager.runMigrations()
 
       // Assert
-      expect(loggerInfoStub.calledWith(sinon.match('Database is new. Skipping migrations.'))).to.be.true
-      expect(migrationManager.initUmzug.called).to.be.false
-      expect(umzugStub.up.called).to.be.false
-      expect(umzugStub.down.called).to.be.false
+      assert.strictEqual(loggerInfoStub.calledWith(sinon.match('Database is new. Skipping migrations.')), true)
+      assert.strictEqual(migrationManager.initUmzug.called, false)
+      assert.strictEqual(umzugStub.up.called, false)
+      assert.strictEqual(umzugStub.down.called, false)
     })
 
     it('should log that no migrations are needed if serverVersion equals databaseVersion', async () => {
@@ -159,8 +160,8 @@ describe('MigrationManager', () => {
       await migrationManager.runMigrations()
 
       // Assert
-      expect(umzugStub.up.called).to.be.false
-      expect(loggerInfoStub.calledWith(sinon.match('Database is already up to date.'))).to.be.true
+      assert.strictEqual(umzugStub.up.called, false)
+      assert.strictEqual(loggerInfoStub.calledWith(sinon.match('Database is already up to date.')), true)
     })
 
     it('should handle migration failure and restore the original database', async () => {
@@ -181,13 +182,13 @@ describe('MigrationManager', () => {
       await migrationManager.runMigrations()
 
       // Assert
-      expect(migrationManager.initUmzug.calledOnce).to.be.true
-      expect(umzugStub.up.calledOnce).to.be.true
-      expect(loggerErrorStub.calledWith(sinon.match('Migration failed'))).to.be.true
-      expect(fsMoveStub.calledWith(originalDbPath, sinon.match('absdatabase.failed.sqlite'), { overwrite: true })).to.be.true
-      expect(fsMoveStub.calledWith(backupDbPath, originalDbPath, { overwrite: true })).to.be.true
-      expect(loggerInfoStub.calledWith(sinon.match('Restored the original database'))).to.be.true
-      expect(processExitStub.calledOnce).to.be.true
+      assert.strictEqual(migrationManager.initUmzug.calledOnce, true)
+      assert.strictEqual(umzugStub.up.calledOnce, true)
+      assert.strictEqual(loggerErrorStub.calledWith(sinon.match('Migration failed')), true)
+      assert.strictEqual(fsMoveStub.calledWith(originalDbPath, sinon.match('absdatabase.failed.sqlite'), { overwrite: true }), true)
+      assert.strictEqual(fsMoveStub.calledWith(backupDbPath, originalDbPath, { overwrite: true }), true)
+      assert.strictEqual(loggerInfoStub.calledWith(sinon.match('Restored the original database')), true)
+      assert.strictEqual(processExitStub.calledOnce, true)
     })
   })
 
@@ -205,8 +206,8 @@ describe('MigrationManager', () => {
       await migrationManager.fetchVersionsFromDatabase()
 
       // Assert
-      expect(migrationManager.maxVersion).to.equal('1.1.0')
-      expect(migrationManager.databaseVersion).to.equal('1.1.0')
+      assert.strictEqual(migrationManager.maxVersion, '1.1.0')
+      assert.strictEqual(migrationManager.databaseVersion, '1.1.0')
     })
 
     it('should create the migrationsMeta table if it does not exist and fetch versions from it', async () => {
@@ -220,12 +221,12 @@ describe('MigrationManager', () => {
 
       // Assert
       const tableDescription = await sequelize.getQueryInterface().describeTable('migrationsMeta')
-      expect(tableDescription).to.deep.equal({
+      assert.deepStrictEqual(tableDescription, {
         key: { type: 'VARCHAR(255)', allowNull: false, defaultValue: undefined, primaryKey: false, unique: false },
         value: { type: 'VARCHAR(255)', allowNull: false, defaultValue: undefined, primaryKey: false, unique: false }
       })
-      expect(migrationManager.maxVersion).to.equal('0.0.0')
-      expect(migrationManager.databaseVersion).to.equal('0.0.0')
+      assert.strictEqual(migrationManager.maxVersion, '0.0.0')
+      assert.strictEqual(migrationManager.databaseVersion, '0.0.0')
     })
 
     it('should create the migrationsMeta with databaseVersion=serverVersion if database is new', async () => {
@@ -239,12 +240,12 @@ describe('MigrationManager', () => {
 
       // Assert
       const tableDescription = await sequelize.getQueryInterface().describeTable('migrationsMeta')
-      expect(tableDescription).to.deep.equal({
+      assert.deepStrictEqual(tableDescription, {
         key: { type: 'VARCHAR(255)', allowNull: false, defaultValue: undefined, primaryKey: false, unique: false },
         value: { type: 'VARCHAR(255)', allowNull: false, defaultValue: undefined, primaryKey: false, unique: false }
       })
-      expect(migrationManager.maxVersion).to.equal('0.0.0')
-      expect(migrationManager.databaseVersion).to.equal(serverVersion)
+      assert.strictEqual(migrationManager.maxVersion, '0.0.0')
+      assert.strictEqual(migrationManager.databaseVersion, serverVersion)
     })
 
     it('should re-create the migrationsMeta table if it existed and database is new (Database force=true)', async () => {
@@ -260,8 +261,8 @@ describe('MigrationManager', () => {
       await migrationManager.fetchVersionsFromDatabase()
 
       // Assert
-      expect(migrationManager.maxVersion).to.equal('0.0.0')
-      expect(migrationManager.databaseVersion).to.equal(serverVersion)
+      assert.strictEqual(migrationManager.maxVersion, '0.0.0')
+      assert.strictEqual(migrationManager.databaseVersion, serverVersion)
     })
 
     it('should throw an error if the database query fails', async () => {
@@ -277,7 +278,7 @@ describe('MigrationManager', () => {
         expect.fail('Expected fetchVersionsFromDatabase to throw an error, but it did not.')
       } catch (error) {
         // Assert
-        expect(error.message).to.equal('Database query failed')
+        assert.strictEqual(error.message, 'Database query failed')
       }
     })
   })
@@ -299,7 +300,7 @@ describe('MigrationManager', () => {
       const [{ maxVersion }] = await sequelize.query("SELECT value AS maxVersion FROM migrationsMeta WHERE key = 'maxVersion'", {
         type: Sequelize.QueryTypes.SELECT
       })
-      expect(maxVersion).to.equal('1.2.0')
+      assert.strictEqual(maxVersion, '1.2.0')
     })
   })
 
@@ -312,7 +313,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.extractVersionFromTag()
 
       // Assert
-      expect(result).to.be.null
+      assert.strictEqual(result, null)
     })
 
     it('should return null if tag does not match the version format', () => {
@@ -324,7 +325,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.extractVersionFromTag(tag)
 
       // Assert
-      expect(result).to.be.null
+      assert.strictEqual(result, null)
     })
 
     it('should extract the version from the tag', () => {
@@ -336,7 +337,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.extractVersionFromTag(tag)
 
       // Assert
-      expect(result).to.equal('1.2.3')
+      assert.strictEqual(result, '1.2.3')
     })
   })
 
@@ -355,11 +356,11 @@ describe('MigrationManager', () => {
       await migrationManager.copyMigrationsToConfigDir()
 
       // Assert
-      expect(readdirStub.calledOnce).to.be.true
-      expect(readdirStub.calledWith(migrationsSourceDir)).to.be.true
-      expect(fsCopyStub.calledTwice).to.be.true
-      expect(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration1.js'), path.join(targetDir, 'migration1.js'))).to.be.true
-      expect(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration2.js'), path.join(targetDir, 'migration2.js'))).to.be.true
+      assert.strictEqual(readdirStub.calledOnce, true)
+      assert.strictEqual(readdirStub.calledWith(migrationsSourceDir), true)
+      assert.strictEqual(fsCopyStub.calledTwice, true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration1.js'), path.join(targetDir, 'migration1.js')), true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration2.js'), path.join(targetDir, 'migration2.js')), true)
     })
 
     it('should throw an error if copying the migrations fails', async () => {
@@ -382,11 +383,11 @@ describe('MigrationManager', () => {
       } catch (error) {}
 
       // Assert
-      expect(readdirStub.calledOnce).to.be.true
-      expect(readdirStub.calledWith(migrationsSourceDir)).to.be.true
-      expect(fsCopyStub.calledTwice).to.be.true
-      expect(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration1.js'), path.join(targetDir, 'migration1.js'))).to.be.true
-      expect(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration2.js'), path.join(targetDir, 'migration2.js'))).to.be.true
+      assert.strictEqual(readdirStub.calledOnce, true)
+      assert.strictEqual(readdirStub.calledWith(migrationsSourceDir), true)
+      assert.strictEqual(fsCopyStub.calledTwice, true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration1.js'), path.join(targetDir, 'migration1.js')), true)
+      assert.strictEqual(fsCopyStub.calledWith(path.join(migrationsSourceDir, 'migration2.js'), path.join(targetDir, 'migration2.js')), true)
     })
   })
 
@@ -403,7 +404,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal(['v1.1.0-migration.js', 'v1.2.0-migration.js'])
+      assert.deepStrictEqual(result, ['v1.1.0-migration.js', 'v1.2.0-migration.js'])
     })
 
     it('should return migrations to run when direction is "down"', () => {
@@ -418,7 +419,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal(['v1.3.0-migration.js'])
+      assert.deepStrictEqual(result, ['v1.3.0-migration.js'])
     })
 
     it('should return empty array when no migrations to run up', () => {
@@ -433,7 +434,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal([])
+      assert.deepStrictEqual(result, [])
     })
 
     it('should return empty array when no migrations to run down', () => {
@@ -448,7 +449,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal([])
+      assert.deepStrictEqual(result, [])
     })
 
     it('should return down migrations to run when direction is "down" and up migration was not executed', () => {
@@ -463,7 +464,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal(['v1.3.0-migration.js', 'v1.2.0-migration.js', 'v1.1.0-migration.js'])
+      assert.deepStrictEqual(result, ['v1.3.0-migration.js', 'v1.2.0-migration.js', 'v1.1.0-migration.js'])
     })
 
     it('should return empty array when direction is "down" and server version is higher than database version', () => {
@@ -478,7 +479,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal([])
+      assert.deepStrictEqual(result, [])
     })
 
     it('should return empty array when direction is "up" and server version is lower than database version', () => {
@@ -493,7 +494,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal([])
+      assert.deepStrictEqual(result, [])
     })
 
     it('should return up migrations to run when server version is between migrations', () => {
@@ -508,7 +509,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal(['v1.2.0-migration.js'])
+      assert.deepStrictEqual(result, ['v1.2.0-migration.js'])
     })
 
     it('should return down migrations to run when server version is between migrations', () => {
@@ -523,7 +524,7 @@ describe('MigrationManager', () => {
       const result = migrationManager.findMigrationsToRun(migrations, executedMigrations, direction)
 
       // Assert
-      expect(result).to.deep.equal(['v1.2.0-migration.js'])
+      assert.deepStrictEqual(result, ['v1.2.0-migration.js'])
     })
   })
 
@@ -542,11 +543,11 @@ describe('MigrationManager', () => {
       await migrationManager.initUmzug(umzugStorage)
 
       // Assert
-      expect(readdirStub.calledOnce).to.be.true
-      expect(migrationManager.umzug).to.be.an.instanceOf(Umzug)
+      assert.strictEqual(readdirStub.calledOnce, true)
+      assert.ok(migrationManager.umzug instanceof Umzug)
       const migrations = await migrationManager.umzug.migrations()
-      expect(migrations.map((m) => m.name)).to.deep.equal(resolvedMigrationNames)
-      expect(migrations.map((m) => m.path)).to.deep.equal(resolvedMigrationPaths)
+      assert.deepStrictEqual(migrations.map((m) => m.name), resolvedMigrationNames)
+      assert.deepStrictEqual(migrations.map((m) => m.path), resolvedMigrationPaths)
     })
   })
 })

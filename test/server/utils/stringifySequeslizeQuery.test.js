@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it } = require('node:test')
 const stringifySequelizeQuery = require('../../../server/utils/stringifySequelizeQuery')
 const Sequelize = require('sequelize')
 
@@ -16,7 +17,7 @@ describe('stringifySequelizeQuery', () => {
     }
 
     const result = stringifySequelizeQuery(query)
-    expect(result).to.equal('{"where":{"name":"John","age":{"Symbol(gt)":20}}}')
+    assert.strictEqual(result, '{"where":{"name":"John","age":{"Symbol(gt)":20}}}')
   })
 
   it('should stringify a sequelize query containing a literal', () => {
@@ -25,7 +26,7 @@ describe('stringifySequelizeQuery', () => {
     }
 
     const result = stringifySequelizeQuery(query)
-    expect(result).to.equal('{"order":{"0":{"0":{"val":"libraryItem.title"},"1":"ASC"}}}')
+    assert.strictEqual(result, '{"order":{"0":{"0":{"val":"libraryItem.title"},"1":"ASC"}}}')
   })
 
   it('should stringify a sequelize query containing a class', () => {
@@ -38,7 +39,7 @@ describe('stringifySequelizeQuery', () => {
     }
 
     const result = stringifySequelizeQuery(query)
-    expect(result).to.equal('{"include":{"0":{"model":"DummyClass"}}}')
+    assert.strictEqual(result, '{"include":{"0":{"model":"DummyClass"}}}')
   })
 
   it('should ignore non-class functions', () => {
@@ -47,6 +48,6 @@ describe('stringifySequelizeQuery', () => {
     }
 
     const result = stringifySequelizeQuery(query)
-    expect(result).to.equal('{}')
+    assert.strictEqual(result, '{}')
   })
 })

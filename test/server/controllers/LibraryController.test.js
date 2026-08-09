@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const { Sequelize } = require('sequelize')
 const sinon = require('sinon')
 
@@ -139,8 +140,8 @@ describe('LibraryController.downloadMultiple', () => {
 
     await LibraryController.downloadMultiple(req, res)
 
-    expect(res.sendStatus.calledWith(403)).to.be.true
-    expect(zipHelpers.zipDirectoriesPipe.called).to.be.false
+    assert.strictEqual(res.sendStatus.calledWith(403), true)
+    assert.strictEqual(zipHelpers.zipDirectoriesPipe.called, false)
   })
 
   it('returns 403 for bulk download of a tag-restricted item', async () => {
@@ -149,8 +150,8 @@ describe('LibraryController.downloadMultiple', () => {
 
     await LibraryController.downloadMultiple(req, res)
 
-    expect(res.sendStatus.calledWith(403)).to.be.true
-    expect(zipHelpers.zipDirectoriesPipe.called).to.be.false
+    assert.strictEqual(res.sendStatus.calledWith(403), true)
+    assert.strictEqual(zipHelpers.zipDirectoriesPipe.called, false)
   })
 
   it('returns 403 when bulk download includes both allowed and forbidden items', async () => {
@@ -159,8 +160,8 @@ describe('LibraryController.downloadMultiple', () => {
 
     await LibraryController.downloadMultiple(req, res)
 
-    expect(res.sendStatus.calledWith(403)).to.be.true
-    expect(zipHelpers.zipDirectoriesPipe.called).to.be.false
+    assert.strictEqual(res.sendStatus.calledWith(403), true)
+    assert.strictEqual(zipHelpers.zipDirectoriesPipe.called, false)
   })
 
   it('starts zip download for allowed items only', async () => {
@@ -169,10 +170,10 @@ describe('LibraryController.downloadMultiple', () => {
 
     await LibraryController.downloadMultiple(req, res)
 
-    expect(res.sendStatus.called).to.be.false
-    expect(zipHelpers.zipDirectoriesPipe.calledOnce).to.be.true
+    assert.strictEqual(res.sendStatus.called, false)
+    assert.strictEqual(zipHelpers.zipDirectoriesPipe.calledOnce, true)
     const pathObjects = zipHelpers.zipDirectoriesPipe.firstCall.args[0]
-    expect(pathObjects).to.have.length(1)
-    expect(pathObjects[0].path).to.equal('/test-lib/allowed')
+    assert.strictEqual(pathObjects.length, 1)
+    assert.strictEqual(pathObjects[0].path, '/test-lib/allowed')
   })
 })

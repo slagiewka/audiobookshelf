@@ -1,6 +1,6 @@
-const chai = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
-const { expect } = chai
 
 const { DataTypes, Sequelize } = require('sequelize')
 const Logger = require('../../../server/Logger')
@@ -79,14 +79,14 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [podcasts] = await queryInterface.sequelize.query('SELECT * FROM podcasts')
-      expect(podcasts).to.deep.equal([
+      assert.deepStrictEqual(podcasts, [
         { id: 1, numEpisodes: 2, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, numEpisodes: 1, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       // Make sure podcastEpisodes are not affected due to ON DELETE CASCADE
       const [podcastEpisodes] = await queryInterface.sequelize.query('SELECT * FROM podcastEpisodes')
-      expect(podcastEpisodes).to.deep.equal([
+      assert.deepStrictEqual(podcastEpisodes, [
         { id: 1, podcastId: 1 },
         { id: 2, podcastId: 1 },
         { id: 3, podcastId: 2 }
@@ -97,7 +97,7 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [mediaProgresses] = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses')
-      expect(mediaProgresses).to.deep.equal([
+      assert.deepStrictEqual(mediaProgresses, [
         { id: 1, userId: 1, mediaItemId: 1, mediaItemType: 'podcastEpisode', podcastId: 1, isFinished: 1 },
         { id: 2, userId: 1, mediaItemId: 2, mediaItemType: 'podcastEpisode', podcastId: 1, isFinished: 0 },
         { id: 3, userId: 1, mediaItemId: 3, mediaItemType: 'podcastEpisode', podcastId: 2, isFinished: 1 },
@@ -113,7 +113,7 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [libraryItems] = await queryInterface.sequelize.query('SELECT * FROM libraryItems')
-      expect(libraryItems).to.deep.equal([
+      assert.deepStrictEqual(libraryItems, [
         { id: 1, mediaId: 1, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, mediaId: 2, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
@@ -123,14 +123,14 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [[{ count }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_from_podcasts_title'`)
-      expect(count).to.equal(1)
+      assert.strictEqual(count, 1)
     })
 
     it('should add trigger to update titleIgnorePrefix in libraryItems', async () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [[{ count }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_ignore_prefix_from_podcasts_title_ignore_prefix'`)
-      expect(count).to.equal(1)
+      assert.strictEqual(count, 1)
     })
 
     it('should be idempotent', async () => {
@@ -138,13 +138,13 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await up({ context: { queryInterface, logger: Logger } })
 
       const [podcasts] = await queryInterface.sequelize.query('SELECT * FROM podcasts')
-      expect(podcasts).to.deep.equal([
+      assert.deepStrictEqual(podcasts, [
         { id: 1, numEpisodes: 2, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, numEpisodes: 1, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       const [mediaProgresses] = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses')
-      expect(mediaProgresses).to.deep.equal([
+      assert.deepStrictEqual(mediaProgresses, [
         { id: 1, userId: 1, mediaItemId: 1, mediaItemType: 'podcastEpisode', podcastId: 1, isFinished: 1 },
         { id: 2, userId: 1, mediaItemId: 2, mediaItemType: 'podcastEpisode', podcastId: 1, isFinished: 0 },
         { id: 3, userId: 1, mediaItemId: 3, mediaItemType: 'podcastEpisode', podcastId: 2, isFinished: 1 },
@@ -156,16 +156,16 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       ])
 
       const [libraryItems] = await queryInterface.sequelize.query('SELECT * FROM libraryItems')
-      expect(libraryItems).to.deep.equal([
+      assert.deepStrictEqual(libraryItems, [
         { id: 1, mediaId: 1, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, mediaId: 2, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       const [[{ count: count1 }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_from_podcasts_title'`)
-      expect(count1).to.equal(1)
+      assert.strictEqual(count1, 1)
 
       const [[{ count: count2 }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_ignore_prefix_from_podcasts_title_ignore_prefix'`)
-      expect(count2).to.equal(1)
+      assert.strictEqual(count2, 1)
     })
   })
 
@@ -179,14 +179,14 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       }
 
       const [podcasts] = await queryInterface.sequelize.query('SELECT * FROM podcasts')
-      expect(podcasts).to.deep.equal([
+      assert.deepStrictEqual(podcasts, [
         { id: 1, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       // Make sure podcastEpisodes are not affected due to ON DELETE CASCADE
       const [podcastEpisodes] = await queryInterface.sequelize.query('SELECT * FROM podcastEpisodes')
-      expect(podcastEpisodes).to.deep.equal([
+      assert.deepStrictEqual(podcastEpisodes, [
         { id: 1, podcastId: 1 },
         { id: 2, podcastId: 1 },
         { id: 3, podcastId: 2 }
@@ -198,7 +198,7 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await down({ context: { queryInterface, logger: Logger } })
 
       const [mediaProgresses] = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses')
-      expect(mediaProgresses).to.deep.equal([
+      assert.deepStrictEqual(mediaProgresses, [
         { id: 1, userId: 1, mediaItemId: 1, mediaItemType: 'podcastEpisode', isFinished: 1 },
         { id: 2, userId: 1, mediaItemId: 2, mediaItemType: 'podcastEpisode', isFinished: 0 },
         { id: 3, userId: 1, mediaItemId: 3, mediaItemType: 'podcastEpisode', isFinished: 1 },
@@ -215,7 +215,7 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await down({ context: { queryInterface, logger: Logger } })
 
       const [[{ count }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_from_podcasts_title'`)
-      expect(count).to.equal(0)
+      assert.strictEqual(count, 0)
     })
 
     it('should remove trigger to update titleIgnorePrefix in libraryItems', async () => {
@@ -223,7 +223,7 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await down({ context: { queryInterface, logger: Logger } })
 
       const [[{ count }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_ignore_prefix_from_podcasts_title_ignore_prefix'`)
-      expect(count).to.equal(0)
+      assert.strictEqual(count, 0)
     })
 
     it('should be idempotent', async () => {
@@ -232,13 +232,13 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       await down({ context: { queryInterface, logger: Logger } })
 
       const [podcasts] = await queryInterface.sequelize.query('SELECT * FROM podcasts')
-      expect(podcasts).to.deep.equal([
+      assert.deepStrictEqual(podcasts, [
         { id: 1, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       const [mediaProgresses] = await queryInterface.sequelize.query('SELECT * FROM mediaProgresses')
-      expect(mediaProgresses).to.deep.equal([
+      assert.deepStrictEqual(mediaProgresses, [
         { id: 1, userId: 1, mediaItemId: 1, mediaItemType: 'podcastEpisode', isFinished: 1 },
         { id: 2, userId: 1, mediaItemId: 2, mediaItemType: 'podcastEpisode', isFinished: 0 },
         { id: 3, userId: 1, mediaItemId: 3, mediaItemType: 'podcastEpisode', isFinished: 1 },
@@ -250,16 +250,16 @@ describe('Migration v2.19.4-improve-podcast-queries', () => {
       ])
 
       const [libraryItems] = await queryInterface.sequelize.query('SELECT * FROM libraryItems')
-      expect(libraryItems).to.deep.equal([
+      assert.deepStrictEqual(libraryItems, [
         { id: 1, mediaId: 1, title: 'The Podcast 1', titleIgnorePrefix: 'Podcast 1, The' },
         { id: 2, mediaId: 2, title: 'The Podcast 2', titleIgnorePrefix: 'Podcast 2, The' }
       ])
 
       const [[{ count: count1 }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_from_podcasts_title'`)
-      expect(count1).to.equal(0)
+      assert.strictEqual(count1, 0)
 
       const [[{ count: count2 }]] = await queryInterface.sequelize.query(`SELECT COUNT(*) as count FROM sqlite_master WHERE type='trigger' AND name='update_library_items_title_ignore_prefix_from_podcasts_title_ignore_prefix'`)
-      expect(count2).to.equal(0)
+      assert.strictEqual(count2, 0)
     })
   })
 })

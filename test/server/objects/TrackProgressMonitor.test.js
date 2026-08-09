@@ -1,8 +1,8 @@
-const chai = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach } = require('node:test')
 const sinon = require('sinon')
 const TrackProgressMonitor = require('../../../server/objects/TrackProgressMonitor')
 
-const expect = chai.expect
 
 describe('TrackProgressMonitor', () => {
   let trackDurations
@@ -21,28 +21,28 @@ describe('TrackProgressMonitor', () => {
   it('should initialize correctly', () => {
     monitor = new TrackProgressMonitor(trackDurations, trackStartedCallback, progressCallback, trackFinishedCallback)
 
-    expect(monitor.trackDurations).to.deep.equal(trackDurations)
-    expect(monitor.totalDuration).to.equal(100)
-    expect(monitor.trackStartedCallback).to.equal(trackStartedCallback)
-    expect(monitor.progressCallback).to.equal(progressCallback)
-    expect(monitor.trackFinishedCallback).to.equal(trackFinishedCallback)
-    expect(monitor.currentTrackIndex).to.equal(0)
-    expect(monitor.cummulativeProgress).to.equal(0)
-    expect(monitor.currentTrackPercentage).to.equal(10)
-    expect(monitor.numTracks).to.equal(trackDurations.length)
-    expect(monitor.allTracksFinished).to.be.false
+    assert.deepStrictEqual(monitor.trackDurations, trackDurations)
+    assert.strictEqual(monitor.totalDuration, 100)
+    assert.strictEqual(monitor.trackStartedCallback, trackStartedCallback)
+    assert.strictEqual(monitor.progressCallback, progressCallback)
+    assert.strictEqual(monitor.trackFinishedCallback, trackFinishedCallback)
+    assert.strictEqual(monitor.currentTrackIndex, 0)
+    assert.strictEqual(monitor.cummulativeProgress, 0)
+    assert.strictEqual(monitor.currentTrackPercentage, 10)
+    assert.strictEqual(monitor.numTracks, trackDurations.length)
+    assert.strictEqual(monitor.allTracksFinished, false)
   })
 
   it('should update the progress', () => {
     monitor = new TrackProgressMonitor(trackDurations, trackStartedCallback, progressCallback, trackFinishedCallback)
     monitor.update(5)
 
-    expect(monitor.currentTrackIndex).to.equal(0)
-    expect(monitor.cummulativeProgress).to.equal(0)
-    expect(monitor.currentTrackPercentage).to.equal(10)
-    expect(trackStartedCallback.calledOnceWithExactly(0)).to.be.true
-    expect(progressCallback.calledOnceWithExactly(0, 50, 5)).to.be.true
-    expect(trackFinishedCallback.notCalled).to.be.true
+    assert.strictEqual(monitor.currentTrackIndex, 0)
+    assert.strictEqual(monitor.cummulativeProgress, 0)
+    assert.strictEqual(monitor.currentTrackPercentage, 10)
+    assert.strictEqual(trackStartedCallback.calledOnceWithExactly(0), true)
+    assert.strictEqual(progressCallback.calledOnceWithExactly(0, 50, 5), true)
+    assert.strictEqual(trackFinishedCallback.notCalled, true)
   })
 
   it('should update the progress multiple times on the same track', () => {
@@ -50,14 +50,14 @@ describe('TrackProgressMonitor', () => {
     monitor.update(5)
     monitor.update(7)
 
-    expect(monitor.currentTrackIndex).to.equal(0)
-    expect(monitor.cummulativeProgress).to.equal(0)
-    expect(monitor.currentTrackPercentage).to.equal(10)
-    expect(trackStartedCallback.calledOnceWithExactly(0)).to.be.true
-    expect(progressCallback.calledTwice).to.be.true
-    expect(progressCallback.calledWithExactly(0, 50, 5)).to.be.true
-    expect(progressCallback.calledWithExactly(0, 70, 7)).to.be.true
-    expect(trackFinishedCallback.notCalled).to.be.true
+    assert.strictEqual(monitor.currentTrackIndex, 0)
+    assert.strictEqual(monitor.cummulativeProgress, 0)
+    assert.strictEqual(monitor.currentTrackPercentage, 10)
+    assert.strictEqual(trackStartedCallback.calledOnceWithExactly(0), true)
+    assert.strictEqual(progressCallback.calledTwice, true)
+    assert.strictEqual(progressCallback.calledWithExactly(0, 50, 5), true)
+    assert.strictEqual(progressCallback.calledWithExactly(0, 70, 7), true)
+    assert.strictEqual(trackFinishedCallback.notCalled, true)
   })
 
   it('should update the progress multiple times on different tracks', () => {
@@ -65,31 +65,31 @@ describe('TrackProgressMonitor', () => {
     monitor.update(5)
     monitor.update(20)
 
-    expect(monitor.currentTrackIndex).to.equal(1)
-    expect(monitor.cummulativeProgress).to.equal(10)
-    expect(monitor.currentTrackPercentage).to.equal(40)
-    expect(trackStartedCallback.calledTwice).to.be.true
-    expect(trackStartedCallback.calledWithExactly(0)).to.be.true
-    expect(trackStartedCallback.calledWithExactly(1)).to.be.true
-    expect(progressCallback.calledTwice).to.be.true
-    expect(progressCallback.calledWithExactly(0, 50, 5)).to.be.true
-    expect(progressCallback.calledWithExactly(1, 25, 20)).to.be.true
-    expect(trackFinishedCallback.calledOnceWithExactly(0)).to.be.true
+    assert.strictEqual(monitor.currentTrackIndex, 1)
+    assert.strictEqual(monitor.cummulativeProgress, 10)
+    assert.strictEqual(monitor.currentTrackPercentage, 40)
+    assert.strictEqual(trackStartedCallback.calledTwice, true)
+    assert.strictEqual(trackStartedCallback.calledWithExactly(0), true)
+    assert.strictEqual(trackStartedCallback.calledWithExactly(1), true)
+    assert.strictEqual(progressCallback.calledTwice, true)
+    assert.strictEqual(progressCallback.calledWithExactly(0, 50, 5), true)
+    assert.strictEqual(progressCallback.calledWithExactly(1, 25, 20), true)
+    assert.strictEqual(trackFinishedCallback.calledOnceWithExactly(0), true)
   })
 
   it('should finish all tracks', () => {
     monitor = new TrackProgressMonitor(trackDurations, trackStartedCallback, progressCallback, trackFinishedCallback)
     monitor.finish()
 
-    expect(monitor.allTracksFinished).to.be.true
-    expect(trackStartedCallback.calledThrice).to.be.true
-    expect(trackFinishedCallback.calledThrice).to.be.true
-    expect(progressCallback.notCalled).to.be.true
-    expect(trackStartedCallback.calledWithExactly(0)).to.be.true
-    expect(trackFinishedCallback.calledWithExactly(0)).to.be.true
-    expect(trackStartedCallback.calledWithExactly(1)).to.be.true
-    expect(trackFinishedCallback.calledWithExactly(1)).to.be.true
-    expect(trackStartedCallback.calledWithExactly(2)).to.be.true
-    expect(trackFinishedCallback.calledWithExactly(2)).to.be.true
+    assert.strictEqual(monitor.allTracksFinished, true)
+    assert.strictEqual(trackStartedCallback.calledThrice, true)
+    assert.strictEqual(trackFinishedCallback.calledThrice, true)
+    assert.strictEqual(progressCallback.notCalled, true)
+    assert.strictEqual(trackStartedCallback.calledWithExactly(0), true)
+    assert.strictEqual(trackFinishedCallback.calledWithExactly(0), true)
+    assert.strictEqual(trackStartedCallback.calledWithExactly(1), true)
+    assert.strictEqual(trackFinishedCallback.calledWithExactly(1), true)
+    assert.strictEqual(trackStartedCallback.calledWithExactly(2), true)
+    assert.strictEqual(trackFinishedCallback.calledWithExactly(2), true)
   })
 })

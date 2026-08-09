@@ -1,147 +1,147 @@
-const chai = require('chai')
-const expect = chai.expect
+const assert = require('node:assert/strict')
+const { describe, it } = require('node:test')
 const { parseNfoMetadata } = require('../../../../server/utils/parsers/parseNfoMetadata')
 
 describe('parseNfoMetadata', () => {
   it('returns null if nfoText is empty', () => {
     const result = parseNfoMetadata('')
-    expect(result).to.be.null
+    assert.strictEqual(result, null)
   })
 
   it('parses title', () => {
     const nfoText = 'Title: The Great Gatsby'
     const result = parseNfoMetadata(nfoText)
-    expect(result.title).to.equal('The Great Gatsby')
+    assert.strictEqual(result.title, 'The Great Gatsby')
   })
 
   it('parses title with subtitle', () => {
     const nfoText = 'Title: The Great Gatsby: A Novel'
     const result = parseNfoMetadata(nfoText)
-    expect(result.title).to.equal('The Great Gatsby')
-    expect(result.subtitle).to.equal('A Novel')
+    assert.strictEqual(result.title, 'The Great Gatsby')
+    assert.strictEqual(result.subtitle, 'A Novel')
   })
 
   it('does not split title on bare colon without space', () => {
     const nfoText = 'Title: 10:04'
     const result = parseNfoMetadata(nfoText)
-    expect(result.title).to.equal('10:04')
-    expect(result.subtitle).to.be.undefined
+    assert.strictEqual(result.title, '10:04')
+    assert.strictEqual(result.subtitle, undefined)
   })
 
   it('does not split title on colon between words without space', () => {
     const nfoText = 'Title: Making the Mission:Impossible Movies'
     const result = parseNfoMetadata(nfoText)
-    expect(result.title).to.equal('Making the Mission:Impossible Movies')
-    expect(result.subtitle).to.be.undefined
+    assert.strictEqual(result.title, 'Making the Mission:Impossible Movies')
+    assert.strictEqual(result.subtitle, undefined)
   })
 
   it('parses authors', () => {
     const nfoText = 'Author: F. Scott Fitzgerald'
     const result = parseNfoMetadata(nfoText)
-    expect(result.authors).to.deep.equal(['F. Scott Fitzgerald'])
+    assert.deepStrictEqual(result.authors, ['F. Scott Fitzgerald'])
   })
 
   it('parses multiple authors', () => {
     const nfoText = 'Author: John Steinbeck, Ernest Hemingway'
     const result = parseNfoMetadata(nfoText)
-    expect(result.authors).to.deep.equal(['John Steinbeck', 'Ernest Hemingway'])
+    assert.deepStrictEqual(result.authors, ['John Steinbeck', 'Ernest Hemingway'])
   })
 
   it('parses narrators', () => {
     const nfoText = 'Read by: Jake Gyllenhaal'
     const result = parseNfoMetadata(nfoText)
-    expect(result.narrators).to.deep.equal(['Jake Gyllenhaal'])
+    assert.deepStrictEqual(result.narrators, ['Jake Gyllenhaal'])
   })
 
   it('parses multiple narrators', () => {
     const nfoText = 'Read by: Jake Gyllenhaal, Kate Winslet'
     const result = parseNfoMetadata(nfoText)
-    expect(result.narrators).to.deep.equal(['Jake Gyllenhaal', 'Kate Winslet'])
+    assert.deepStrictEqual(result.narrators, ['Jake Gyllenhaal', 'Kate Winslet'])
   })
 
   it('parses series name', () => {
     const nfoText = 'Series Name: Harry Potter'
     const result = parseNfoMetadata(nfoText)
-    expect(result.series).to.equal('Harry Potter')
+    assert.strictEqual(result.series, 'Harry Potter')
   })
 
   it('parses genre', () => {
     const nfoText = 'Genre: Fiction'
     const result = parseNfoMetadata(nfoText)
-    expect(result.genres).to.deep.equal(['Fiction'])
+    assert.deepStrictEqual(result.genres, ['Fiction'])
   })
 
   it('parses multiple genres', () => {
     const nfoText = 'Genre: Fiction, Historical'
     const result = parseNfoMetadata(nfoText)
-    expect(result.genres).to.deep.equal(['Fiction', 'Historical'])
+    assert.deepStrictEqual(result.genres, ['Fiction', 'Historical'])
   })
 
   it('parses tags', () => {
     const nfoText = 'Tags: mystery, thriller'
     const result = parseNfoMetadata(nfoText)
-    expect(result.tags).to.deep.equal(['mystery', 'thriller'])
+    assert.deepStrictEqual(result.tags, ['mystery', 'thriller'])
   })
 
   it('parses year from various date fields', () => {
     const nfoText = 'Release Date: 2021-05-01\nBook Copyright: 2021\nRecording Copyright: 2021'
     const result = parseNfoMetadata(nfoText)
-    expect(result.publishedYear).to.equal('2021')
+    assert.strictEqual(result.publishedYear, '2021')
   })
 
   it('parses position in series', () => {
     const nfoText = 'Position in Series: 2'
     const result = parseNfoMetadata(nfoText)
-    expect(result.sequence).to.equal('2')
+    assert.strictEqual(result.sequence, '2')
   })
 
   it('parses abridged flag', () => {
     const nfoText = 'Abridged: No'
     const result = parseNfoMetadata(nfoText)
-    expect(result.abridged).to.be.false
+    assert.strictEqual(result.abridged, false)
 
     const nfoText2 = 'Unabridged: Yes'
     const result2 = parseNfoMetadata(nfoText2)
-    expect(result2.abridged).to.be.false
+    assert.strictEqual(result2.abridged, false)
   })
 
   it('parses publisher', () => {
     const nfoText = 'Publisher: Penguin Random House'
     const result = parseNfoMetadata(nfoText)
-    expect(result.publisher).to.equal('Penguin Random House')
+    assert.strictEqual(result.publisher, 'Penguin Random House')
   })
 
   it('parses ASIN', () => {
     const nfoText = 'ASIN: B08X5JZJLH'
     const result = parseNfoMetadata(nfoText)
-    expect(result.asin).to.equal('B08X5JZJLH')
+    assert.strictEqual(result.asin, 'B08X5JZJLH')
   })
 
   it('parses language', () => {
     const nfoText = 'Language: eng'
     const result = parseNfoMetadata(nfoText)
-    expect(result.language).to.equal('eng')
+    assert.strictEqual(result.language, 'eng')
 
     const nfoText2 = 'lang: deu'
     const result2 = parseNfoMetadata(nfoText2)
-    expect(result2.language).to.equal('deu')
+    assert.strictEqual(result2.language, 'deu')
   })
 
   it('parses description', () => {
     const nfoText = 'Book Description\n=========\nThis is a book.\n It\'s good'
     const result = parseNfoMetadata(nfoText)
-    expect(result.description).to.equal('This is a book.\n It\'s good')
+    assert.strictEqual(result.description, 'This is a book.\n It\'s good')
   })
 
   it('no value', () => {
     const nfoText = 'Title:'
     const result = parseNfoMetadata(nfoText)
-    expect(result.title).to.be.undefined
+    assert.strictEqual(result.title, undefined)
   })
 
   it('no year value', () => {
     const nfoText = "Date:0"
     const result = parseNfoMetadata(nfoText)
-    expect(result.publishedYear).to.be.undefined
+    assert.strictEqual(result.publishedYear, undefined)
   })
 })

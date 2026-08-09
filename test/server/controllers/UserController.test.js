@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 
 const UserController = require('../../../server/controllers/UserController')
@@ -20,7 +21,7 @@ describe('UserController - delete', () => {
 
     await UserController.delete({ user: adminUser, reqUser: rootUser, params: { id: rootUser.id } }, fakeRes)
 
-    expect(fakeRes.sendStatus.calledWith(403)).to.be.true
-    expect(fakeRes.json.called).to.be.false
+    assert.strictEqual(fakeRes.sendStatus.calledWith(403), true)
+    assert.strictEqual(fakeRes.json.called, false)
   })
 })

@@ -1,4 +1,5 @@
-const { expect } = require('chai')
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach, afterEach } = require('node:test')
 const sinon = require('sinon')
 const { up, down } = require('./v0.0.1-migration_example')
 const { Sequelize } = require('sequelize')
@@ -23,14 +24,14 @@ describe('migration_example', () => {
     it('should create example_table', async () => {
       await up({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(4)
-      expect(loggerInfoStub.getCall(0).calledWith(sinon.match('Running migration_example up...'))).to.be.true
-      expect(loggerInfoStub.getCall(1).calledWith(sinon.match('Creating example_table...'))).to.be.true
-      expect(loggerInfoStub.getCall(2).calledWith(sinon.match('example_table created.'))).to.be.true
-      expect(loggerInfoStub.getCall(3).calledWith(sinon.match('migration_example up complete.'))).to.be.true
-      expect(await queryInterface.showAllTables()).to.include('example_table')
+      assert.strictEqual(loggerInfoStub.callCount, 4)
+      assert.strictEqual(loggerInfoStub.getCall(0).calledWith(sinon.match('Running migration_example up...')), true)
+      assert.strictEqual(loggerInfoStub.getCall(1).calledWith(sinon.match('Creating example_table...')), true)
+      assert.strictEqual(loggerInfoStub.getCall(2).calledWith(sinon.match('example_table created.')), true)
+      assert.strictEqual(loggerInfoStub.getCall(3).calledWith(sinon.match('migration_example up complete.')), true)
+      assert.ok((await queryInterface.showAllTables()).some((table) => table === 'example_table' || table.tableName === 'example_table'))
       const tableDescription = await queryInterface.describeTable('example_table')
-      expect(tableDescription).to.deep.equal({
+      assert.deepStrictEqual(tableDescription, {
         id: { type: 'INTEGER', allowNull: true, defaultValue: undefined, primaryKey: true, unique: false },
         name: { type: 'VARCHAR(255)', allowNull: false, defaultValue: undefined, primaryKey: false, unique: false }
       })
@@ -42,12 +43,12 @@ describe('migration_example', () => {
       await up({ context: { queryInterface, logger: Logger } })
       await down({ context: { queryInterface, logger: Logger } })
 
-      expect(loggerInfoStub.callCount).to.equal(8)
-      expect(loggerInfoStub.getCall(4).calledWith(sinon.match('Running migration_example down...'))).to.be.true
-      expect(loggerInfoStub.getCall(5).calledWith(sinon.match('Dropping example_table...'))).to.be.true
-      expect(loggerInfoStub.getCall(6).calledWith(sinon.match('example_table dropped.'))).to.be.true
-      expect(loggerInfoStub.getCall(7).calledWith(sinon.match('migration_example down complete.'))).to.be.true
-      expect(await queryInterface.showAllTables()).not.to.include('example_table')
+      assert.strictEqual(loggerInfoStub.callCount, 8)
+      assert.strictEqual(loggerInfoStub.getCall(4).calledWith(sinon.match('Running migration_example down...')), true)
+      assert.strictEqual(loggerInfoStub.getCall(5).calledWith(sinon.match('Dropping example_table...')), true)
+      assert.strictEqual(loggerInfoStub.getCall(6).calledWith(sinon.match('example_table dropped.')), true)
+      assert.strictEqual(loggerInfoStub.getCall(7).calledWith(sinon.match('migration_example down complete.')), true)
+      assert.ok(!(await queryInterface.showAllTables()).some((table) => table === 'example_table' || table.tableName === 'example_table'))
     })
   })
 })

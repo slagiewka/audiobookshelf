@@ -1,5 +1,6 @@
+const assert = require('node:assert/strict')
+const { describe, it, beforeEach } = require('node:test')
 // Import dependencies and modules for testing
-const { expect } = require('chai')
 const sinon = require('sinon')
 const { LRUCache } = require('lru-cache')
 const ApiCacheManager = require('../../../server/managers/ApiCacheManager')
@@ -30,17 +31,17 @@ describe('ApiCacheManager', () => {
       manager.middleware(req, res, next)
 
       // Assert
-      expect(cache.get.calledOnce).to.be.true
-      expect(cache.get.calledWith(key)).to.be.true
-      expect(res.set.calledOnce).to.be.true
-      expect(res.set.calledWith(cachedData.headers)).to.be.true
-      expect(res.status.calledOnce).to.be.true
-      expect(res.status.calledWith(cachedData.statusCode)).to.be.true
-      expect(res.send.calledOnce).to.be.true
-      expect(res.send.calledWith(cachedData.body)).to.be.true
-      expect(res.originalSend).to.be.undefined
-      expect(next.called).to.be.false
-      expect(cache.set.called).to.be.false
+      assert.strictEqual(cache.get.calledOnce, true)
+      assert.strictEqual(cache.get.calledWith(key), true)
+      assert.strictEqual(res.set.calledOnce, true)
+      assert.strictEqual(res.set.calledWith(cachedData.headers), true)
+      assert.strictEqual(res.status.calledOnce, true)
+      assert.strictEqual(res.status.calledWith(cachedData.statusCode), true)
+      assert.strictEqual(res.send.calledOnce, true)
+      assert.strictEqual(res.send.calledWith(cachedData.body), true)
+      assert.strictEqual(res.originalSend, undefined)
+      assert.strictEqual(next.called, false)
+      assert.strictEqual(cache.set.called, false)
     })
 
     it('should cache and send response if data is not cached', () => {
@@ -59,13 +60,13 @@ describe('ApiCacheManager', () => {
       res.send(body)
 
       // Assert
-      expect(cache.get.calledOnce).to.be.true
-      expect(cache.get.calledWith(key)).to.be.true
-      expect(next.calledOnce).to.be.true
-      expect(cache.set.calledOnce).to.be.true
-      expect(cache.set.calledWith(key, responseData)).to.be.true
-      expect(res.originalSend.calledOnce).to.be.true
-      expect(res.originalSend.calledWith(body)).to.be.true
+      assert.strictEqual(cache.get.calledOnce, true)
+      assert.strictEqual(cache.get.calledWith(key), true)
+      assert.strictEqual(next.calledOnce, true)
+      assert.strictEqual(cache.set.calledOnce, true)
+      assert.strictEqual(cache.set.calledWith(key, responseData), true)
+      assert.strictEqual(res.originalSend.calledOnce, true)
+      assert.strictEqual(res.originalSend.calledWith(body), true)
     })
 
     it('should cache personalized response with 30 minutes TTL', () => {
@@ -86,13 +87,13 @@ describe('ApiCacheManager', () => {
       res.send(body)
 
       // Assert
-      expect(cache.get.calledOnce).to.be.true
-      expect(cache.get.calledWith(key)).to.be.true
-      expect(next.calledOnce).to.be.true
-      expect(cache.set.calledOnce).to.be.true
-      expect(cache.set.calledWith(key, responseData, ttlOptions)).to.be.true
-      expect(res.originalSend.calledOnce).to.be.true
-      expect(res.originalSend.calledWith(body)).to.be.true
+      assert.strictEqual(cache.get.calledOnce, true)
+      assert.strictEqual(cache.get.calledWith(key), true)
+      assert.strictEqual(next.calledOnce, true)
+      assert.strictEqual(cache.set.calledOnce, true)
+      assert.strictEqual(cache.set.calledWith(key, responseData, ttlOptions), true)
+      assert.strictEqual(res.originalSend.calledOnce, true)
+      assert.strictEqual(res.originalSend.calledWith(body), true)
     })
   })
 
@@ -105,7 +106,7 @@ describe('ApiCacheManager', () => {
 
       manager.clear({ name: 'mediaProgress' }, 'afterUpdate')
 
-      expect(cache.get(key)).to.be.undefined
+      assert.strictEqual(cache.get(key), undefined)
     })
   })
 })
